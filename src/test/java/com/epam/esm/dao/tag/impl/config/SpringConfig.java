@@ -1,5 +1,7 @@
-package com.epam.esm.config;
+package com.epam.esm.dao.tag.impl.config;
 
+import com.epam.esm.dao.tag.TagDao;
+import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.epam.esm")
-@EnableWebMvc
 public class SpringConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
@@ -57,12 +57,22 @@ public class SpringConfig implements WebMvcConfigurer {
     @Bean
     public DataSource dataSource() throws NamingException {
         InitialContext initContext = new InitialContext();
-        DataSource dataSource = (DataSource) initContext.lookup("java:comp/env/jdbc/mjs-stage2");
+        DataSource dataSource = (DataSource) initContext.lookup("java:comp/env/jdbc/mjs-stage2-test");
         return dataSource;
     }
 
     @Bean
     public JdbcTemplate jdbcTemplate() throws NamingException {
         return new JdbcTemplate(dataSource());
+    }
+
+    @Bean
+    public TagDao tagDao() throws NamingException {
+        return new TagDaoImplementation(jdbcTemplate());
+    }
+
+    @Bean
+    public TagDaoImplementation tagDaoImplementation() throws NamingException {
+        return new TagDaoImplementation(jdbcTemplate());
     }
 }

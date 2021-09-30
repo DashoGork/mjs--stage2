@@ -1,30 +1,31 @@
 package com.epam.esm.model;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 
-public class GiftCertificate {
-    private int id;
-    private String name;
+@Component
+public class GiftCertificate extends BaseEntity {
     private String description;
     private int price;
     private int duration;
     private Date createDate;
     private Date lastUpdateDate;
 
-    public int getId() {
-        return id;
+    public long getId() {
+        return super.getId();
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId(long id) {
+        super.setId(id);
     }
 
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
     public String getDescription() {

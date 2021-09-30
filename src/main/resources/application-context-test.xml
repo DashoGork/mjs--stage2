@@ -1,0 +1,9 @@
+<Context>
+    <Resource name="jdbc/mjs-stage2-test" auth="Container"
+              type="javax.sql.DataSource" maxActive="100"
+              maxIdle="30" maxWait="10000"
+              username=""
+              password=""
+              driverClassName="org.h2.Driver"
+              url="jdbc:h2:~/test"/>
+</Context>
