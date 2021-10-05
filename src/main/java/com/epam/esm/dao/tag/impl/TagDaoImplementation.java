@@ -17,11 +17,11 @@ import java.util.List;
 public class TagDaoImplementation implements TagDao {
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String DELETE_TAG = "delete from postgres.\"mjs-2\".tag where id=?";
-    private static final String SAVE_TAG = "insert into postgres.\"mjs-2\".tag (name) values (?)";
-    private static final String SELECT_TAG_BY_ID = "select * from postgres.\"mjs-2\".tag where id=?";
-    private static final String SELECT_TAG_BY_NAME = "select * from postgres.\"mjs-2\".tag where name=?";
-    private static final String SELECT_ALL_TAGS = "select * from postgres.\"mjs-2\".tag";
+    private static final String DELETE_TAG = "delete from mjs2.tag where id=?";
+    private static final String SAVE_TAG = "insert into mjs2.tag (name) values (?)";
+    private static final String SELECT_TAG_BY_ID = "select * from mjs2.tag where id=?";
+    private static final String SELECT_TAG_BY_NAME = "select * from mjs2.tag where name=?";
+    private static final String SELECT_ALL_TAGS = "select * from mjs2.tag";
 
     @Autowired
     public TagDaoImplementation(JdbcTemplate jdbcTemplate) {
@@ -59,8 +59,8 @@ public class TagDaoImplementation implements TagDao {
     public void update(String name) {
         try {
             read(name);
-        }catch (TagNotFoundException e){
-            Tag tag=new Tag();
+        } catch (TagNotFoundException e) {
+            Tag tag = new Tag();
             tag.setName(name);
             create(tag);
         }

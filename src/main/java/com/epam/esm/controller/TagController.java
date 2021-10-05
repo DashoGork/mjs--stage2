@@ -1,36 +1,36 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dao.tag.TagDao;
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.model.Tag;
+import com.epam.esm.service.TagService;
+import com.epam.esm.service.TagServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/tags")
 public class TagController {
-    private final TagDao tagDao;
+    private final TagServiceI tagService;
 
     @Autowired
-    public TagController(TagDaoImplementation tagDao) {
-        this.tagDao = tagDao;
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
     }
 
     @GetMapping("")
     public String showAll(Model model) {
-        model.addAttribute("list_of_tags", tagDao.read());
+        model.addAttribute("list_of_tags", tagService.read());
         return "/tag/show_all";
     }
 
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id,
                        Model model) {
-        model.addAttribute("tag", tagDao.read(id));
+        model.addAttribute("tag", tagService.read(id));
         return "/tag/show";
     }
 
@@ -41,24 +41,28 @@ public class TagController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable("id") int id){
-        tagDao.delete(id);
+    public String delete(@PathVariable("id") long id){
+        Tag tag=new Tag();
+        tag.setId(id);
+        tagService.delete(tag);
         return "redirect:/tags";
     }
 
     @GetMapping("/delete/{id}")
-    public String doN(@PathVariable("id") int id){
-        tagDao.delete(id);
+    public String doN(@PathVariable("id") long id){
+        Tag tag=new Tag();
+        tag.setId(id);
+        tagService.delete(tag);
         return "redirect:/tags";
     }
 
     @PostMapping("")
-    public String create(@ModelAttribute("tag") @Valid Tag tag,
+    public String create(@ModelAttribute("tag") Tag tag,
                          BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return "tags/new";
 
-        tagDao.create(tag.getName());
+        tagService.create(tag);
         return "redirect:/tags";
     }
 

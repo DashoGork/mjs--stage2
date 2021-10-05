@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @org.springframework.stereotype.Service
-public class TagService implements Service<Tag>{
+public class TagService implements TagServiceI {
     private TagDao tagDao;
 
     @Autowired
@@ -18,28 +18,39 @@ public class TagService implements Service<Tag>{
     }
 
     @Override
-    public void create(Tag tag){
+    public void create(Tag tag) {
         tagDao.update(tag.getName());
     }
 
-    public void delete(Tag tag){
+    @Override
+    public void delete(Tag tag) {
         tagDao.delete(tag.getId());
     }
 
-    public List<Tag> read(){
+    @Override
+    public List<Tag> read() {
         return tagDao.read();
     }
 
-//    public Tag read(Tag tag){
-//        if(tag.getName()!=null){
-//            try {
-//                return tagDao.read(tag.getName());
-//            }catch (TagNotFoundException e){
-//
-//            }
-//        }else
-//    }
+    @Override
+    public Tag read(String name) {
+        if (name != null) {
+            try {
+                return tagDao.read(name);
+            } catch (TagNotFoundException e) {
+                return new Tag();//null obj
+            }
+        } else {
+            return new Tag();
+        }
+    }
 
-
-
+    @Override
+    public Tag read(long id) {
+        try {
+            return tagDao.read(id);
+        } catch (TagNotFoundException e) {
+            return new Tag();//null obj
+        }
+    }
 }

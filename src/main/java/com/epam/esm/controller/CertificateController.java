@@ -7,57 +7,58 @@ import com.epam.esm.model.Tag;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/gift_certificate")
-public class GiftController {
+public class CertificateController {
     private GiftCertificateDao giftCertificateDao;
     private Service service;
 
     @Autowired
-    public GiftController(GiftCertificateDaoImplementation giftCertificateDao, CertificateService service) {
+    public CertificateController(GiftCertificateDaoImplementation giftCertificateDao,
+                                 CertificateService service) {
         this.giftCertificateDao = giftCertificateDao;
-        this.service=service;
+        this.service = service;
     }
 
     @GetMapping("")
-    public String showAll(Model model){
+    public String showAll(Model model) {
         model.addAttribute("list_of_certificates", giftCertificateDao.read());
         return "/gift_sertificate/show_all";
     }
 
     @PostMapping("")
-    public String createNew(@ModelAttribute("gift_certificate") @Valid GiftCertificate giftCertificate,
-                            BindingResult bindingResult){
+    public String createNew(@ModelAttribute("gift_certificate") GiftCertificate giftCertificate,
+                            BindingResult bindingResult) {
         giftCertificateDao.create(giftCertificate);
         return "/gift_sertificate/show_all";
     }
 
     @GetMapping("/new")
-    public String showNew(@ModelAttribute("gift_certificate") GiftCertificate giftCertificate){
+    public String showNew(@ModelAttribute("gift_certificate") GiftCertificate giftCertificate) {
         return "/gift_sertificate/new";
     }
 
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id,
-                       Model model){
+                       Model model) {
         model.addAttribute("certificate", giftCertificateDao.read(id));
         return "/gift_sertificate/show";
     }
 
-//    @PostMapping("/{id}")
-//    public String addTag(@ModelAttribute("tag") @Valid Tag tag,
-//                         @PathVariable("id") long id,
-//                         BindingResult bindingResult){
-//       service.create(tag,giftCertificateDao.read(id));
-//        return "/gift_sertificate/show";
-//    }
+    @PostMapping("/{id}")
+    public String addTag(@ModelAttribute("tag") Tag tag,
+                         @PathVariable("id") long id,
+                         BindingResult bindingResult){
+        //service.create(tag,giftCertificateDao.read(id));
+        return "/gift_sertificate/show";
+    }
 
 
 }

@@ -10,4 +10,6 @@ public interface GiftCertificateDao {
     GiftCertificate read(long id);
     void update(GiftCertificate giftCertificate);
     void delete(long id);
+    List<GiftCertificate> searchByPartOfDescription(String query);
+    List<GiftCertificate> searchByPartOfName(String query);
 }

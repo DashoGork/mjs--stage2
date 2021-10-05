@@ -1,21 +1,12 @@
 package com.epam.esm.model;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.validation.constraints.NotNull;
 
 @Component
 public class BaseEntity {
-    @PrimaryKeyJoinColumn
-    @Id
-    @GeneratedValue
+
     private long id;
 
-    @NotNull
     private String name;
 
     public long getId() {
