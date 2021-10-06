@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface TagCertificateDao {
     void add(Tag tag, GiftCertificate certificate);
-    List<Integer> readByCertificate(long id);
-    List<Integer> readByTag(long id);
+    List<Long> readByCertificate(long id);
+    List<Long> readByTag(long id);
     void deleteTag(long id);
     void deleteCertificate(long id);
 }

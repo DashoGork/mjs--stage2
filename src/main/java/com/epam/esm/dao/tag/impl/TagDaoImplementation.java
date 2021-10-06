@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Repository
-@Transactional
+@Component
 public class TagDaoImplementation implements TagDao {
     private final JdbcTemplate jdbcTemplate;
 

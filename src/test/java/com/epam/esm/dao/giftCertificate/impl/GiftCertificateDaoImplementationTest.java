@@ -3,7 +3,6 @@ package com.epam.esm.dao.giftCertificate.impl;
 import com.epam.esm.model.GiftCertificate;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;

@@ -53,9 +53,9 @@ public class CertificateService implements Service<GiftCertificate> {
     }
 
     public List<GiftCertificate> getAllCertificatesByTag(Tag tag) {
-        List<Integer> ids = tagCertificateDao.readByTag(tagDao.read(tag.getName()).getId());
+        List<Long> ids = tagCertificateDao.readByTag(tagDao.read(tag.getName()).getId());
         List<GiftCertificate> certificates = new ArrayList<>();
-        for (Integer id : ids) {
+        for (Long id : ids) {
             certificates.add(giftCertificateDao.read(id));
         }
         return certificates;
