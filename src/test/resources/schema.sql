@@ -19,7 +19,7 @@ CREATE TABLE mjs2.tag_gift_certificate
     ID long PRIMARY KEY AUTO_INCREMENT,
     tag_id long not null,
     certificate_id long not null,
-    FOREIGN KEY (tag_id) REFERENCES tag(id),
-    FOREIGN KEY (certificate_id) REFERENCES gift_certificate(id),
+    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (certificate_id) REFERENCES gift_certificate(id) ON DELETE CASCADE,
 
 );

@@ -1,6 +1,5 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import org.junit.Before;
@@ -20,14 +19,13 @@ public class TagCertificateDaoImplementationTest {
     private TagCertificateDaoImplementation dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DataSource embeddedDatabase = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
                 .addScript("classpath:test-data.sql")
                 .build();
         dao = new TagCertificateDaoImplementation(new JdbcTemplate(embeddedDatabase));
     }
-
 
     @Test
     public void add() {

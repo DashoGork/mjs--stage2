@@ -1,4 +1,4 @@
-package com.epam.esm.service;
+package com.epam.esm.service.certificate;
 
 import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
@@ -12,12 +12,13 @@ import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
-public class CertificateService implements Service<GiftCertificate> {
+@Service
+public class CertificateService implements CertificateServiceI {
     private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
     private TagCertificateDao tagCertificateDao;
@@ -33,14 +34,22 @@ public class CertificateService implements Service<GiftCertificate> {
     }
 
 
-    public void create(GiftCertificate giftCertificate, Tag tag) {
+    public void create(GiftCertificate giftCertificate, Tag... tags) {
         giftCertificateDao.create(giftCertificate);
-        tagCertificateDao.add(tag, giftCertificate);
-        tagDao.update(tag.getName());
+        for (Tag tag : tags) {
+            tagDao.update(tag.getName());
+            tagCertificateDao.add(tag, giftCertificate);
+        }
     }
 
+    @Override
     public List<GiftCertificate> read() {
         return giftCertificateDao.read();
+    }
+
+    @Override
+    public GiftCertificate read(long id) {
+        return giftCertificateDao.read(id);
     }
 
     public void delete(GiftCertificate giftCertificate) {
@@ -48,8 +57,8 @@ public class CertificateService implements Service<GiftCertificate> {
         tagCertificateDao.deleteCertificate(giftCertificate.getId());
     }
 
-    public void update() {
-        ///
+    public void update(Tag tag, GiftCertificate giftCertificate) {
+        giftCertificateDao.update(giftCertificate);
     }
 
     public List<GiftCertificate> getAllCertificatesByTag(Tag tag) {
@@ -71,8 +80,8 @@ public class CertificateService implements Service<GiftCertificate> {
                 return (getNumberOfWordsInjections(query.split(" "), o2.getDescription())
                         - getNumberOfWordsInjections(query.split(" "), o1.getDescription())
                         + getNumberOfWordsInjections(query.split(" "), o2.getName())
-                        - getNumberOfWordsInjections(query.split(" "), o1.getName()));
-            }
+                        - getNumberOfWordsInjections(query.split(" "), o1.getName())
+                );}
         }).collect(Collectors.toList());
         return certificates;
     }

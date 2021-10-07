@@ -20,7 +20,7 @@ public class GiftCertificateDaoImplementationTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DataSource embeddedDatabase = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
                 .addScript("classpath:test-data.sql")
@@ -30,7 +30,7 @@ public class GiftCertificateDaoImplementationTest {
 
     @Test
     public void createTest() {
-        GiftCertificate giftCertificateToAdd=new GiftCertificate();
+        GiftCertificate giftCertificateToAdd = new GiftCertificate();
         giftCertificateToAdd.setName("n4");
         giftCertificateToAdd.setDescription("s4");
         giftCertificateToAdd.setPrice(12);
@@ -39,39 +39,45 @@ public class GiftCertificateDaoImplementationTest {
         giftCertificateToAdd.setLastUpdateDate(new Date());
         dao.create(giftCertificateToAdd);
 
-        List<GiftCertificate> defaultList=dao.read();
-        assertTrue(defaultList.size()==4);
+        List<GiftCertificate> defaultList = dao.read();
+        assertTrue(defaultList.size() == 4);
     }
 
     @Test
     public void readAllTest() {
-        List<GiftCertificate> defaultList=dao.read();
-        assertTrue(defaultList.size()==3);
+        List<GiftCertificate> defaultList = dao.read();
+        assertTrue(defaultList.size() == 3);
     }
 
     @Test
     public void readByIdTest() {
         GiftCertificate actualGiftCertificate = dao.read(1l);
-        assertTrue(actualGiftCertificate.getId()==1l);
+        assertTrue(actualGiftCertificate.getId() == 1l);
     }
 
     @Test
     public void searchByPartOfDescriptionTest() {
-        List<GiftCertificate> defaultList=dao.searchByPartOfDescription("s");
-        assertTrue(defaultList.size()==3);
+        List<GiftCertificate> defaultList = dao.searchByPartOfDescription("s");
+        assertTrue(defaultList.size() == 3);
     }
 
     @Test
     public void searchByPartOfNameTest() {
-        List<GiftCertificate> defaultList=dao.searchByPartOfName("n");
-        assertTrue(defaultList.size()==3);
+        List<GiftCertificate> defaultList = dao.searchByPartOfName("n");
+        assertTrue(defaultList.size() == 3);
     }
 
     @Test
     public void deleteTest() {
-        List<GiftCertificate> defaultList=dao.read();
+        List<GiftCertificate> defaultList = dao.read();
         dao.delete(1);
-        List<GiftCertificate> updatedList=dao.read();
-        assertTrue(updatedList.size()==2);
+        List<GiftCertificate> updatedList = dao.read();
+        assertTrue(updatedList.size() == 2);
+    }
+
+    @Test
+    public void searchByPartOfDescription() {
+        List<GiftCertificate> actual = dao.searchByPartOfDescription("S");
+        assertTrue(actual.size() == 3);
     }
 }

@@ -1,14 +1,16 @@
-package com.epam.esm.service;
+package com.epam.esm.service.tag;
 
 import com.epam.esm.dao.tag.TagDao;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@org.springframework.stereotype.Service
+
+@Service
 public class TagService implements TagServiceI {
     private TagDao tagDao;
 
