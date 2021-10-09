@@ -11,9 +11,9 @@ public interface CertificateServiceI extends Service<GiftCertificate> {
     List<GiftCertificate> read();
     void delete(GiftCertificate giftCertificate);
     void update(Tag tag,GiftCertificate giftCertificate);
-    List<GiftCertificate> getAllCertificatesByTag(Tag tag);
+    List<GiftCertificate> getAllCertificatesByTagName(String tagName);
     List<GiftCertificate> getByPartOfNameOrDescription(String query);
-    List<GiftCertificate> SortByAscDesc(String name, String sortField, String sortOrder);
+    List<GiftCertificate> sortByAscDesc(String name, String sortField, String sortOrder);
     GiftCertificate read(long id);
 
 }

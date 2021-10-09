@@ -1,8 +1,10 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
+import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.TagCertificateDao;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +18,7 @@ import java.util.List;
 public class TagCertificateDaoImplementation implements TagCertificateDao {
 
     private final JdbcTemplate jdbcTemplate;
+    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
 
     private static final String DELETE_TAG = "delete from mjs2.tag_gift_certificate where tag_id=?";
     private static final String SELECT_ALL_CERTIFICATES_BY_TAG = "select certificate_id from mjs2.tag_gift_certificate where tag_id=?";
@@ -32,11 +35,13 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
 
     @Override
     public void add(Tag tag, GiftCertificate certificate) {
+        log.info("Save giftCertificate with id = " + certificate.getId()+" with tag id = " +tag.getId());
         jdbcTemplate.update(SAVE_CERTIFICATE, tag.getId(), certificate.getId());
     }
 
     @Override
     public List<Long> readByTag(long id) {
+        log.info("Read by tag with id = " + id);
         return jdbcTemplate.query(SELECT_ALL_CERTIFICATES_BY_TAG, new RowMapper<Long>() {
             public Long mapRow(ResultSet rs, int rowNum)
                     throws SQLException {
@@ -47,6 +52,7 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
 
     @Override
     public List<Long> readByCertificate(long id) {
+        log.info("Read by certificate with id = " + id);
         return jdbcTemplate.query(SELECT_TAGS_BY_CERTIFICATE_ID, new RowMapper<Long>() {
             public Long mapRow(ResultSet rs, int rowNum)
                     throws SQLException {
@@ -57,11 +63,13 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
 
     @Override
     public void deleteTag(long id) {
+        log.info("Delete tag with id = " + id);
         jdbcTemplate.update(DELETE_TAG, id);
     }
 
     @Override
     public void deleteCertificate(long id) {
+        log.info("Delete certificate with id = " + id);
         jdbcTemplate.update(DELETE_CERTIFICATE, id);
     }
 }

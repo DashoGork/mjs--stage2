@@ -3,17 +3,14 @@ package com.epam.esm.service.certificate;
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
-import com.epam.esm.enums.SortOptions;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
-import com.epam.esm.service.tag.TagService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -98,7 +95,7 @@ public class CertificateServiceTest {
         when(tagDao.read(tag.getName())).thenReturn(tag);
         when(tagCertificateDao.readByTag(tag.getId())).thenReturn(expectedListOfIds);
         when(certificateDao.read(1l)).thenReturn(giftCertificate);
-        List<GiftCertificate> actualList = service.getAllCertificatesByTag(tag);
+        List<GiftCertificate> actualList = service.getAllCertificatesByTagName(tag.getName());
         assertTrue(actualList.equals(expectedList));
     }
 
@@ -112,6 +109,8 @@ public class CertificateServiceTest {
         String query = "ddd nnnn";
         when(certificateDao.searchByPartOfDescription(query)).thenReturn(expectedList);
         when(certificateDao.searchByPartOfName(query)).thenReturn(expectedList);
+        when(certificateDao.read(0)).thenReturn(giftCertificate);
+        when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
         List<GiftCertificate> actualList = service.getByPartOfNameOrDescription(query);
         assertTrue(actualList.get(0).getDescription().equals(giftCertificateToRange.getDescription()));
     }
@@ -126,8 +125,10 @@ public class CertificateServiceTest {
         String query = "ddd nnnn";
         when(certificateDao.searchByPartOfDescription(query)).thenReturn(expectedList);
         when(certificateDao.searchByPartOfName(query)).thenReturn(expectedList);
-        List<GiftCertificate> actualListAsc = service.SortByAscDesc(query, "name", "asc");
-        List<GiftCertificate> actualListDesc = service.SortByAscDesc(query, "name", "desc");
+        when(certificateDao.read(0)).thenReturn(giftCertificate);
+        when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
+        List<GiftCertificate> actualListAsc = service.sortByAscDesc(query, "name", "asc");
+        List<GiftCertificate> actualListDesc = service.sortByAscDesc(query, "name", "desc");
         assertTrue(actualListAsc.get(0)!=actualListDesc.get(0));
     }
 }

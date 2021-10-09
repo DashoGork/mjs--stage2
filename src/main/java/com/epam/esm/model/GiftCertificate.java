@@ -3,6 +3,7 @@ package com.epam.esm.model;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class GiftCertificate extends BaseEntity {
@@ -11,6 +12,29 @@ public class GiftCertificate extends BaseEntity {
     private int duration;
     private Date createDate;
     private Date lastUpdateDate;
+    private List<Tag> tags;
+
+    public GiftCertificate() {
+        super();
+    }
+
+    public GiftCertificate(String name, String description, int price, int duration, Date createDate, Date lastUpdateDate, List<Tag> tags) {
+        super();
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
 
     public long getId() {
         return super.getId();

@@ -4,11 +4,14 @@ import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.model.Tag;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,17 +63,19 @@ public class TagServiceTest {
         assertTrue(actualTag.equals(tag));
     }
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Test
     public void testReadByNameWithNullName() {
+        expectedException.expect(InvalidParameterException.class);
         Tag actualTag = service.read(null);
-        assertTrue(actualTag.getId() == 0);
     }
 
     @Test
     public void testReadByNameWithNotFoundException() {
         when(dao.read("name")).thenThrow(new TagNotFoundException("message"));
+        expectedException.expect(TagNotFoundException.class);
         Tag actualTag = service.read("name");
-        assertTrue(actualTag.getId() == 0);
     }
 
     @Test
@@ -83,8 +88,8 @@ public class TagServiceTest {
     @Test
     public void testReadByIdWithNotFoundException() {
         when(dao.read(22)).thenThrow(new TagNotFoundException("message"));
+        expectedException.expect(TagNotFoundException.class);
         Tag actualTag = service.read(22);
-        assertTrue(actualTag.getId() == 0);
     }
 
 

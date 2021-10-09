@@ -11,7 +11,6 @@ import com.epam.esm.enums.SortOrder;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -44,12 +43,31 @@ public class CertificateService implements CertificateServiceI {
 
     @Override
     public List<GiftCertificate> read() {
-        return giftCertificateDao.read();
+        List<GiftCertificate> giftCertificates = giftCertificateDao.read();
+        List<Long> tagIds;
+        List<Tag> tagsForEachCertificate = new ArrayList<>();
+        for (GiftCertificate giftCertificate : giftCertificates) {
+            tagIds = tagCertificateDao.readByCertificate(giftCertificate.getId());
+            for (Long id : tagIds) {
+                tagsForEachCertificate.add(tagDao.read(id));
+            }
+            giftCertificate.setTags(tagsForEachCertificate);
+            tagsForEachCertificate = new ArrayList<>();
+        }
+        return giftCertificates;
     }
 
     @Override
     public GiftCertificate read(long id) {
-        return giftCertificateDao.read(id);
+        GiftCertificate giftCertificate = giftCertificateDao.read(id);
+        List<Long> tagIds;
+        List<Tag> tags = new ArrayList<>();
+        tagIds = tagCertificateDao.readByCertificate(giftCertificate.getId());
+        for (Long tagId : tagIds) {
+            tags.add(tagDao.read(tagId));
+        }
+        giftCertificate.setTags(tags);
+        return giftCertificate;
     }
 
     public void delete(GiftCertificate giftCertificate) {
@@ -58,14 +76,15 @@ public class CertificateService implements CertificateServiceI {
     }
 
     public void update(Tag tag, GiftCertificate giftCertificate) {
+
         giftCertificateDao.update(giftCertificate);
     }
 
-    public List<GiftCertificate> getAllCertificatesByTag(Tag tag) {
-        List<Long> ids = tagCertificateDao.readByTag(tagDao.read(tag.getName()).getId());
+    public List<GiftCertificate> getAllCertificatesByTagName(String tagName) {
+        List<Long> ids = tagCertificateDao.readByTag(tagDao.read(tagName).getId());
         List<GiftCertificate> certificates = new ArrayList<>();
         for (Long id : ids) {
-            certificates.add(giftCertificateDao.read(id));
+            certificates.add(read(id));
         }
         return certificates;
     }
@@ -74,6 +93,9 @@ public class CertificateService implements CertificateServiceI {
         List<GiftCertificate> certificates = giftCertificateDao.searchByPartOfDescription(query);
         certificates.addAll(giftCertificateDao.searchByPartOfName(query));
         certificates = certificates.stream().distinct().collect(Collectors.toList());
+        for (GiftCertificate certificate : certificates) {
+            certificate.setTags(read(certificate.getId()).getTags());
+        }
         certificates = certificates.stream().sorted(new Comparator<GiftCertificate>() {
             @Override
             public int compare(GiftCertificate o1, GiftCertificate o2) {
@@ -81,40 +103,47 @@ public class CertificateService implements CertificateServiceI {
                         - getNumberOfWordsInjections(query.split(" "), o1.getDescription())
                         + getNumberOfWordsInjections(query.split(" "), o2.getName())
                         - getNumberOfWordsInjections(query.split(" "), o1.getName())
-                );}
+                );
+            }
         }).collect(Collectors.toList());
         return certificates;
     }
 
-    public List<GiftCertificate> SortByAscDesc(String name, String sortField, String sortOrder) {
-        if (name != null) {
+    public List<GiftCertificate> sortByAscDesc(String name, String sortField, String sortOrder) {
+        if (name != null & !name.equals("default")) {
             List<GiftCertificate> listToSort = getByPartOfNameOrDescription(name);
-            if (sortField != null & sortOrder != null) {
-                Comparator<GiftCertificate> nameComparator = Comparator.comparing(certificate -> certificate.getName());
-                Comparator<GiftCertificate> descriptionComparator = Comparator.comparing(certificate -> certificate.getDescription());
-                Comparator comparator;
-                if (SortOptions.DESCRIPTION.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                    comparator = descriptionComparator;
-                } else if (SortOptions.NAME.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                    comparator = nameComparator;
-                } else {
-                    throw new IllegalArgumentException("Invalid sort field " + sortField);
-                }
-                listToSort = listToSort.stream().sorted(new Comparator<GiftCertificate>() {
-                    @Override
-                    public int compare(GiftCertificate o1, GiftCertificate o2) {
-                        return comparator.compare(o1, o2) * SortOrder.valueOf(sortOrder.toUpperCase(Locale.ROOT)).getValue();
-                    }
-                }).collect(Collectors.toList());
-            }
-            return listToSort;
+            return sortByAscDesc(sortField, sortOrder, listToSort);
         } else {
-            return read();
+            return sortByAscDesc(sortField, sortOrder, read());
         }
     }
 
+    private List<GiftCertificate> sortByAscDesc(String sortField, String sortOrder, List<GiftCertificate> listToSort) {
+        if (sortField != null & sortOrder != null) {
+            Comparator<GiftCertificate> nameComparator = Comparator.comparing(certificate -> certificate.getName());
+            Comparator<GiftCertificate> dateComparator = Comparator.comparing(certificate -> certificate.getCreateDate());
+            Comparator comparator;
+            if (SortOptions.DATE.name().equals(sortField.toUpperCase(Locale.ROOT))) {
+                comparator = dateComparator;
+            } else if (SortOptions.NAME.name().equals(sortField.toUpperCase(Locale.ROOT))) {
+                comparator = nameComparator;
+            } else {
+                throw new IllegalArgumentException("Invalid sort field " + sortField);
+            }
+            listToSort = listToSort.stream().sorted(new Comparator<GiftCertificate>() {
+                @Override
+                public int compare(GiftCertificate o1, GiftCertificate o2) {
+                    return comparator.compare(o1, o2) * SortOrder.valueOf(sortOrder.toUpperCase(Locale.ROOT)).getValue();
+                }
+            }).collect(Collectors.toList());
+        }
+        return listToSort;
+
+    }
+
     private int getNumberOfWordsInjections(String[] searchWords, String searchContainer) {
-        return Arrays.stream(searchWords).reduce(0, (a, b) -> (searchContainer.contains(b) ? 1 : 0) + a, Integer::sum);
+        return Arrays.stream(searchWords)
+                .reduce(0, (a, b) -> (searchContainer.contains(b) ? 1 : 0) + a, Integer::sum);
     }
 
 }
