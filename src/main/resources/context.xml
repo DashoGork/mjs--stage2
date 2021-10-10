@@ -1,9 +1,16 @@
 <Context>
-<Resource name="jdbc/mjs-stage2" auth="Container"
+    <Resource name="jdbc/mjs-stage2" auth="Container"
           type="javax.sql.DataSource" maxActive="100"
           maxIdle="30" maxWait="10000"
           username="postgres"
           password="12345"
           driverClassName="org.postgresql.Driver"
-          url="jdbc:postgresql://localhost:5432/postgres"/>
+              url="jdbc:postgresql://localhost:5432/postgres"/>
+    <Resource name="jdbc/mjs-stage2-test" auth="Container"
+              type="javax.sql.DataSource" maxActive="100"
+              maxIdle="30" maxWait="10000"
+              username="postgres"
+              password="12345"
+              driverClassName="org.postgresql.Driver"
+              url="jdbc:postgresql://localhost:5432/postgres"/>
 </Context>

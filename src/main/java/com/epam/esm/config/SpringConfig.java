@@ -55,7 +55,8 @@ public class SpringConfig implements WebMvcConfigurer {
     @Bean
     public DataSource dataSource() throws NamingException {
         InitialContext initContext = new InitialContext();
-        DataSource dataSource = (DataSource) initContext.lookup("java:comp/env/jdbc/mjs-stage2");
+        DataSource dataSource = (DataSource) initContext.lookup("java:comp" +
+                "/env/jdbc/mjs-stage2");
         return dataSource;
     }
 
