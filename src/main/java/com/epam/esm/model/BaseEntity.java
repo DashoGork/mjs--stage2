@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 public class BaseEntity {
 
     private long id;
-
     private String name;
 
     public long getId() {

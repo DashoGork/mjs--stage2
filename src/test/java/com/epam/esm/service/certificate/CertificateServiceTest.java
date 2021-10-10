@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -36,11 +37,11 @@ public class CertificateServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new CertificateService(certificateDao,tagDao,tagCertificateDao);
+        service = new CertificateService(certificateDao, tagDao, tagCertificateDao);
         tag = new Tag();
         tag.setName("name");
         tag.setId(1);
-        giftCertificate=new GiftCertificate();
+        giftCertificate = new GiftCertificate();
         giftCertificate.setName("name");
         giftCertificate.setDescription("desc");
         giftCertificate.setDuration(2);
@@ -56,8 +57,10 @@ public class CertificateServiceTest {
     public void create() {
         doNothing().when(tagDao).create(tag);
         doNothing().when(certificateDao).create(giftCertificate);
-        doNothing().when(tagCertificateDao).add( tag,giftCertificate);
-        service.create(giftCertificate,tag);
+        when(certificateDao.read(any())).thenReturn(giftCertificate);
+        giftCertificate.setTags(new ArrayList<>());
+        doNothing().when(tagCertificateDao).add(tag, giftCertificate);
+        service.create(giftCertificate);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class CertificateServiceTest {
 
     @Test
     public void getAllCertificatesByTag() {
-        List<Long> expectedListOfIds =new ArrayList<>();
+        List<Long> expectedListOfIds = new ArrayList<>();
         expectedListOfIds.add(1l);
         when(tagDao.read(tag.getName())).thenReturn(tag);
         when(tagCertificateDao.readByTag(tag.getId())).thenReturn(expectedListOfIds);
@@ -107,8 +110,7 @@ public class CertificateServiceTest {
         giftCertificateToRange.setId(11);
         expectedList.add(giftCertificateToRange);
         String query = "ddd nnnn";
-        when(certificateDao.searchByPartOfDescription(query)).thenReturn(expectedList);
-        when(certificateDao.searchByPartOfName(query)).thenReturn(expectedList);
+        when(certificateDao.read()).thenReturn(expectedList);
         when(certificateDao.read(0)).thenReturn(giftCertificate);
         when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
         List<GiftCertificate> actualList = service.getByPartOfNameOrDescription(query);
@@ -122,13 +124,15 @@ public class CertificateServiceTest {
         giftCertificateToRange.setName("nnnn");
         giftCertificateToRange.setId(11);
         expectedList.add(giftCertificateToRange);
-        String query = "ddd nnnn";
-        when(certificateDao.searchByPartOfDescription(query)).thenReturn(expectedList);
-        when(certificateDao.searchByPartOfName(query)).thenReturn(expectedList);
+        when(certificateDao.read()).thenReturn(expectedList);
         when(certificateDao.read(0)).thenReturn(giftCertificate);
         when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
-        List<GiftCertificate> actualListAsc = service.sortByAscDesc(query, "name", "asc");
-        List<GiftCertificate> actualListDesc = service.sortByAscDesc(query, "name", "desc");
-        assertTrue(actualListAsc.get(0)!=actualListDesc.get(0));
+        List<GiftCertificate> actualListAsc = service.sortByAscDesc("", "name",
+                "asc");
+        List<GiftCertificate> actualListDesc = service.sortByAscDesc("",
+                "name", "desc");
+        assertTrue(actualListAsc.get(0) != actualListDesc.get(0));
     }
+
+
 }

@@ -1,6 +1,5 @@
 package com.epam.esm.dao.giftCertificate.impl;
 
-import com.epam.esm.controller.CertificateController;
 import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.model.GiftCertificate;
@@ -9,22 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class GiftCertificateDaoImplementation implements GiftCertificateDao {
 
-    private final JdbcTemplate jdbcTemplate;
-    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
-
+    private static final Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
     private static final String DELETE_GIFT_CERTIFICATE = "delete from mjs2.gift_certificate where id=?";
-    private static final String SAVE_GIFT_CERTIFICATE = "insert into mjs2.gift_certificate (name, price,description,duration,create_date=now(),last_update_date) VALUES(?, ?, ?, ?, ?, ?)";
+    private static final String CREATE_GIFT_CERTIFICATE = "insert into " +
+            "mjs2.gift_certificate (name, price,description,duration,create_date," +
+            "last_update_date) VALUES(?, ?, ?, ?, ?, ?)";
     private static final String SELECT_GIFT_CERTIFICATE_BY_ID = "select * from mjs2.gift_certificate where id=?";
     private static final String SELECT_ALL_GIFT_CERTIFICATE = "select * from mjs2.gift_certificate";
-    private static final String UPDATE_GIFT_CERTIFICATE = "update mjs2.gift_certificate set name=?, description=?, price=?, duration=?, last_update_date=now()\n" +
+    private static final String UPDATE_GIFT_CERTIFICATE = "update mjs2" +
+            ".gift_certificate set name=?, description=?, price=?, " +
+            "duration=?, last_update_date=NOW()\n" +
             "WHERE id=?";
+    private static final String SELECT_GIFT_CERTIFICATE_BY_CREATE_DATE =
+            "select * from mjs2.gift_certificate where create_date=?";
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public GiftCertificateDaoImplementation(JdbcTemplate jdbcTemplate) {
@@ -34,8 +37,12 @@ public class GiftCertificateDaoImplementation implements GiftCertificateDao {
     @Override
     public void create(GiftCertificate giftCertificate) {
         log.info("GiftCertificate created" + giftCertificate.toString());
-        jdbcTemplate.update(SAVE_GIFT_CERTIFICATE,
-                new Object[]{giftCertificate.getName(), giftCertificate.getPrice(), giftCertificate.getDescription(), giftCertificate.getDuration(), giftCertificate.getCreateDate(), giftCertificate.getLastUpdateDate()});
+        jdbcTemplate.update(CREATE_GIFT_CERTIFICATE,
+                giftCertificate.getName(),
+                giftCertificate.getPrice(), giftCertificate.getDescription(),
+                giftCertificate.getDuration(),
+                giftCertificate.getCreateDate(),
+                giftCertificate.getLastUpdateDate());
     }
 
     @Override
@@ -52,23 +59,11 @@ public class GiftCertificateDaoImplementation implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> searchByPartOfDescription(String query) {
-        log.info("Search giftCertificates by part of description with query = " + query);
-        List<GiftCertificate> listOfAll = read();
-        return listOfAll.stream()
-                .filter((giftCertificate ->
-                        giftCertificate.getDescription().toLowerCase().contains(query.toLowerCase())))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<GiftCertificate> searchByPartOfName(String query) {
-        log.info("Search giftCertificates by part of name with query = " + query);
-        List<GiftCertificate> listOfAll = read();
-        return listOfAll.stream()
-                .filter((giftCertificate ->
-                        giftCertificate.getName().toLowerCase().contains(query.toLowerCase())))
-                .collect(Collectors.toList());
+    public GiftCertificate read(Date date) throws GiftCertificateNotFoundException {
+        log.info("Read giftCertificate with date =" + date);
+        return jdbcTemplate.query(SELECT_GIFT_CERTIFICATE_BY_CREATE_DATE,
+                        new GiftCertificateRowMapper(), new Object[]{date})
+                .stream().findAny().orElseThrow(() -> new GiftCertificateNotFoundException("Certificate wasn't found. date = " + date));
     }
 
     @Override

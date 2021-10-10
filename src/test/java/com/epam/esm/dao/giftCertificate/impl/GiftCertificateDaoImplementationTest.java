@@ -8,11 +8,10 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
-
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 
 public class GiftCertificateDaoImplementationTest {
@@ -56,28 +55,10 @@ public class GiftCertificateDaoImplementationTest {
     }
 
     @Test
-    public void searchByPartOfDescriptionTest() {
-        List<GiftCertificate> defaultList = dao.searchByPartOfDescription("s");
-        assertTrue(defaultList.size() == 3);
-    }
-
-    @Test
-    public void searchByPartOfNameTest() {
-        List<GiftCertificate> defaultList = dao.searchByPartOfName("n");
-        assertTrue(defaultList.size() == 3);
-    }
-
-    @Test
     public void deleteTest() {
         List<GiftCertificate> defaultList = dao.read();
         dao.delete(1);
         List<GiftCertificate> updatedList = dao.read();
         assertTrue(updatedList.size() == 2);
-    }
-
-    @Test
-    public void searchByPartOfDescription() {
-        List<GiftCertificate> actual = dao.searchByPartOfDescription("S");
-        assertTrue(actual.size() == 3);
     }
 }

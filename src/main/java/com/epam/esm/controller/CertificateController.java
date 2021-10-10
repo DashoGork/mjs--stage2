@@ -4,10 +4,8 @@ import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.certificate.CertificateService;
 import com.epam.esm.service.certificate.CertificateServiceI;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
@@ -32,11 +30,8 @@ public class CertificateController {
     }
 
     @PostMapping("")
-    public List<GiftCertificate> createNew(@RequestBody GiftCertificate giftCertificate,
-                                           @RequestBody List<Tag> tags) {
-        String g = giftCertificate.getDescription();
-        Tag tag = tags.get(0);
-        service.create(giftCertificate, tag);
+    public List<GiftCertificate> createNew(@RequestBody GiftCertificate giftCertificate) {
+        service.create(giftCertificate);
         return service.read();
     }
 
@@ -55,35 +50,34 @@ public class CertificateController {
             ReflectionUtils.setField(field, giftCertificate, v);
             field.setAccessible(false);
         });
-        Tag tag=new Tag();
+        Tag tag = new Tag();
         service.update(tag, giftCertificate);
         return service.read();
     }
 
-    @GetMapping("/query/{query}")
-    public List<GiftCertificate> showByQuery(@PathVariable("query") String query) {
-        return service.getByPartOfNameOrDescription(query);
+//    @GetMapping("/query")
+//    public List<GiftCertificate> showByQuery(@RequestParam("query") String query) {
+//        return service.getByPartOfNameOrDescription(query);
+//    }
+
+    @GetMapping("/query")
+    public List<GiftCertificate> showByQueryOrTag(@RequestParam("sortField") String sortField,
+                                                  @RequestParam("query") String query,
+                                                  @RequestParam("sortOrder") String sortOrder,
+                                                  @RequestParam("tagName") String tagName) {
+        return service.getByTagOrQueryAndSort(query,sortField,sortOrder,tagName);
     }
 
-    @GetMapping("/tag/{tagName}")
-    public List<GiftCertificate> showByTag(@PathVariable("tagName") String tagName) {
+    @GetMapping("/tag")
+    public List<GiftCertificate> showByTag(@RequestParam("tagName") String tagName) {
         return service.getAllCertificatesByTagName(tagName);
     }
 
-    @GetMapping("/sort/{query}/{sortField}/{sortOrder}")
-    public List<GiftCertificate> showBySort(@PathVariable("sortField") String sortField,
-                                            @PathVariable("query") String query,
-                                            @PathVariable("sortOrder") String sortOrder) {
+    @GetMapping("/sort")
+    public List<GiftCertificate> showBySort(@RequestParam("sortField") String sortField,
+                                            @RequestParam("query") String query,
+                                            @RequestParam("sortOrder") String sortOrder) {
         return service.sortByAscDesc(query, sortField, sortOrder);
-    }
-
-    @PostMapping("/{id}")
-    public String addTag(@ModelAttribute("gift") GiftCertificate giftCertificate,
-                         @PathVariable("id") long id,
-                         BindingResult bindingResult) {
-        System.out.println(giftCertificate.getDescription());
-        //service.update(tag,giftCertificateDao.read(id));
-        return "/gift_sertificate/show";
     }
 
     @DeleteMapping("/{id}")

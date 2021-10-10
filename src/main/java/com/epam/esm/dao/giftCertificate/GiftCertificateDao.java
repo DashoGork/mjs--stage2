@@ -2,6 +2,7 @@ package com.epam.esm.dao.giftCertificate;
 
 import com.epam.esm.model.GiftCertificate;
 
+import java.util.Date;
 import java.util.List;
 
 public interface GiftCertificateDao {
@@ -10,6 +11,5 @@ public interface GiftCertificateDao {
     GiftCertificate read(long id);
     void update(GiftCertificate giftCertificate);
     void delete(long id);
-    List<GiftCertificate> searchByPartOfDescription(String query);
-    List<GiftCertificate> searchByPartOfName(String query);
+    GiftCertificate read(Date date);
 }

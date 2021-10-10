@@ -10,6 +10,7 @@ import com.epam.esm.enums.SortOptions;
 import com.epam.esm.enums.SortOrder;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class CertificateService implements CertificateServiceI {
     private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
     private TagCertificateDao tagCertificateDao;
+    private static final Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
 
     @Autowired
     public CertificateService(
@@ -33,11 +35,17 @@ public class CertificateService implements CertificateServiceI {
     }
 
 
-    public void create(GiftCertificate giftCertificate, Tag... tags) {
+    public void create(GiftCertificate giftCertificate) {
+        Date dateOfCreation = new Date();
+        giftCertificate.setLastUpdateDate(dateOfCreation);
+        giftCertificate.setCreateDate(dateOfCreation);
         giftCertificateDao.create(giftCertificate);
-        for (Tag tag : tags) {
+        GiftCertificate createdGiftCertificate =
+                giftCertificateDao.read(dateOfCreation);
+        createdGiftCertificate.setTags(giftCertificate.getTags());
+        for (Tag tag : createdGiftCertificate.getTags()) {
             tagDao.update(tag.getName());
-            tagCertificateDao.add(tag, giftCertificate);
+            tagCertificateDao.add(tagDao.read(tag.getName()), createdGiftCertificate);
         }
     }
 
@@ -90,8 +98,8 @@ public class CertificateService implements CertificateServiceI {
     }
 
     public List<GiftCertificate> getByPartOfNameOrDescription(String query) {
-        List<GiftCertificate> certificates = giftCertificateDao.searchByPartOfDescription(query);
-        certificates.addAll(giftCertificateDao.searchByPartOfName(query));
+        List<GiftCertificate> certificates = searchByPartOfDescription(query);
+        certificates.addAll(searchByPartOfName(query));
         certificates = certificates.stream().distinct().collect(Collectors.toList());
         for (GiftCertificate certificate : certificates) {
             certificate.setTags(read(certificate.getId()).getTags());
@@ -110,7 +118,7 @@ public class CertificateService implements CertificateServiceI {
     }
 
     public List<GiftCertificate> sortByAscDesc(String name, String sortField, String sortOrder) {
-        if (name != null & !name.equals("default")) {
+        if (name != null & !name.isEmpty()) {
             List<GiftCertificate> listToSort = getByPartOfNameOrDescription(name);
             return sortByAscDesc(sortField, sortOrder, listToSort);
         } else {
@@ -118,8 +126,23 @@ public class CertificateService implements CertificateServiceI {
         }
     }
 
+    public List<GiftCertificate> getByTagOrQueryAndSort(String name,
+                                                        String sortField,
+                                                        String sortOrder,
+                                                        String tagName){
+        List<GiftCertificate> giftCertificates = new ArrayList<>();
+        if(!name.isEmpty() & name!=null){
+            giftCertificates.addAll(getByPartOfNameOrDescription(name));
+        }
+        if(!tagName.isEmpty() & tagName!=null){
+            giftCertificates.addAll(getAllCertificatesByTagName(tagName));
+            giftCertificates = giftCertificates.stream().distinct().collect(Collectors.toList());
+        }
+        return sortByAscDesc(sortField,sortOrder,giftCertificates);
+    }
+
     private List<GiftCertificate> sortByAscDesc(String sortField, String sortOrder, List<GiftCertificate> listToSort) {
-        if (sortField != null & sortOrder != null) {
+        if (sortField != null & !sortField.isEmpty() & !sortOrder.isEmpty() & sortOrder != null) {
             Comparator<GiftCertificate> nameComparator = Comparator.comparing(certificate -> certificate.getName());
             Comparator<GiftCertificate> dateComparator = Comparator.comparing(certificate -> certificate.getCreateDate());
             Comparator comparator;
@@ -144,6 +167,35 @@ public class CertificateService implements CertificateServiceI {
     private int getNumberOfWordsInjections(String[] searchWords, String searchContainer) {
         return Arrays.stream(searchWords)
                 .reduce(0, (a, b) -> (searchContainer.contains(b) ? 1 : 0) + a, Integer::sum);
+    }
+
+
+    List<GiftCertificate> searchByPartOfName(String query) {
+        log.info("Search giftCertificates by part of name with query = " + query);
+        List<GiftCertificate> listOfAll = read();
+        List<GiftCertificate> sortedList = new ArrayList<>();
+        for (String substring:query.split(" ")) {
+            sortedList.addAll(listOfAll.stream()
+                    .filter((giftCertificate ->
+                            giftCertificate.getName().toLowerCase().contains(substring.toLowerCase())))
+                    .collect(Collectors.toList()));
+        }
+        sortedList = sortedList.stream().distinct().collect(Collectors.toList());
+        return sortedList;
+    }
+
+    List<GiftCertificate> searchByPartOfDescription(String query) {
+        log.info("Search giftCertificates by part of description with query = " + query);
+        List<GiftCertificate> listOfAll = read();
+        List<GiftCertificate> sortedList = new ArrayList<>();
+        for (String substring:query.split(" ")) {
+            sortedList.addAll(listOfAll.stream()
+                    .filter((giftCertificate ->
+                            giftCertificate.getDescription().toLowerCase().contains(substring.toLowerCase())))
+                    .collect(Collectors.toList())) ;
+        }
+        sortedList = sortedList.stream().distinct().collect(Collectors.toList());
+        return sortedList;
     }
 
 }

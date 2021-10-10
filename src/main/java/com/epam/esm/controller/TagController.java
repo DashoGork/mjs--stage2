@@ -21,21 +21,21 @@ public class TagController {
     }
 
     @GetMapping("")
-    public List<Tag> showAll() {
+    public List<Tag> getAll() {
         return tagService.read();
     }
 
     @GetMapping("/{id}")
-    public Tag show(@PathVariable("id") int id) {
+    public Tag getById(@PathVariable("id") int id) {
         return tagService.read(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public List<Tag> delete(@PathVariable("id") long id) {
+    @DeleteMapping("/{id}")
+    public List<Tag> deleteById(@PathVariable("id") long id) {
         Tag tag = new Tag();
         tag.setId(id);
         tagService.delete(tag);
-        return showAll();
+        return getAll();
     }
 
     @PostMapping("")
@@ -45,6 +45,6 @@ public class TagController {
             return null;
 
         tagService.create(tag);
-        return showAll();
+        return getAll();
     }
 }
