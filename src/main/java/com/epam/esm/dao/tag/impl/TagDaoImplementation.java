@@ -13,14 +13,13 @@ import java.util.List;
 
 @Repository
 public class TagDaoImplementation implements TagDao {
-    private final JdbcTemplate jdbcTemplate;
-    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
-
     private static final String DELETE_TAG = "delete from mjs2.tag where id=?";
     private static final String SAVE_TAG = "insert into mjs2.tag (name) values (?)";
     private static final String SELECT_TAG_BY_ID = "select * from mjs2.tag where id=?";
     private static final String SELECT_TAG_BY_NAME = "select * from mjs2.tag where name=?";
     private static final String SELECT_ALL_TAGS = "select * from mjs2.tag";
+    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public TagDaoImplementation(JdbcTemplate jdbcTemplate) {
@@ -62,7 +61,7 @@ public class TagDaoImplementation implements TagDao {
 
     @Override
     public void update(String name) {
-        log.info("Update tag with name = "+ name);
+        log.info("Update tag with name = " + name);
         try {
             read(name);
         } catch (TagNotFoundException e) {

@@ -17,14 +17,13 @@ import java.util.List;
 @Repository
 public class TagCertificateDaoImplementation implements TagCertificateDao {
 
-    private final JdbcTemplate jdbcTemplate;
-    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
-
     private static final String DELETE_TAG = "delete from mjs2.tag_gift_certificate where tag_id=?";
     private static final String SELECT_ALL_CERTIFICATES_BY_TAG = "select certificate_id from mjs2.tag_gift_certificate where tag_id=?";
     private static final String DELETE_CERTIFICATE = "delete from mjs2.tag_gift_certificate where certificate_id=?";
     private static final String SAVE_CERTIFICATE = "insert into mjs2.tag_gift_certificate (tag_id,certificate_id)  Values(?,?)";
     private static final String SELECT_TAGS_BY_CERTIFICATE_ID = "select tag_id from mjs2.tag_gift_certificate where certificate_id=?";
+    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
+    private final JdbcTemplate jdbcTemplate;
 
 
     @Autowired
@@ -35,7 +34,7 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
 
     @Override
     public void add(Tag tag, GiftCertificate certificate) {
-        log.info("Save giftCertificate with id = " + certificate.getId()+" with tag id = " +tag.getId());
+        log.info("Save giftCertificate with id = " + certificate.getId() + " with tag id = " + tag.getId());
         jdbcTemplate.update(SAVE_CERTIFICATE, tag.getId(), certificate.getId());
     }
 

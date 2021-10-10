@@ -65,7 +65,7 @@ public class CertificateController {
                                                   @RequestParam("query") String query,
                                                   @RequestParam("sortOrder") String sortOrder,
                                                   @RequestParam("tagName") String tagName) {
-        return service.getByTagOrQueryAndSort(query,sortField,sortOrder,tagName);
+        return service.getByTagOrQueryAndSort(query, sortField, sortOrder, tagName);
     }
 
     @GetMapping("/tag")

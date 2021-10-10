@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CertificateService implements CertificateServiceI {
+    private static final Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
     private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
     private TagCertificateDao tagCertificateDao;
-    private static final Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
 
     @Autowired
     public CertificateService(
@@ -129,16 +129,16 @@ public class CertificateService implements CertificateServiceI {
     public List<GiftCertificate> getByTagOrQueryAndSort(String name,
                                                         String sortField,
                                                         String sortOrder,
-                                                        String tagName){
+                                                        String tagName) {
         List<GiftCertificate> giftCertificates = new ArrayList<>();
-        if(!name.isEmpty() & name!=null){
+        if (!name.isEmpty() & name != null) {
             giftCertificates.addAll(getByPartOfNameOrDescription(name));
         }
-        if(!tagName.isEmpty() & tagName!=null){
+        if (!tagName.isEmpty() & tagName != null) {
             giftCertificates.addAll(getAllCertificatesByTagName(tagName));
             giftCertificates = giftCertificates.stream().distinct().collect(Collectors.toList());
         }
-        return sortByAscDesc(sortField,sortOrder,giftCertificates);
+        return sortByAscDesc(sortField, sortOrder, giftCertificates);
     }
 
     private List<GiftCertificate> sortByAscDesc(String sortField, String sortOrder, List<GiftCertificate> listToSort) {
@@ -174,7 +174,7 @@ public class CertificateService implements CertificateServiceI {
         log.info("Search giftCertificates by part of name with query = " + query);
         List<GiftCertificate> listOfAll = read();
         List<GiftCertificate> sortedList = new ArrayList<>();
-        for (String substring:query.split(" ")) {
+        for (String substring : query.split(" ")) {
             sortedList.addAll(listOfAll.stream()
                     .filter((giftCertificate ->
                             giftCertificate.getName().toLowerCase().contains(substring.toLowerCase())))
@@ -188,11 +188,11 @@ public class CertificateService implements CertificateServiceI {
         log.info("Search giftCertificates by part of description with query = " + query);
         List<GiftCertificate> listOfAll = read();
         List<GiftCertificate> sortedList = new ArrayList<>();
-        for (String substring:query.split(" ")) {
+        for (String substring : query.split(" ")) {
             sortedList.addAll(listOfAll.stream()
                     .filter((giftCertificate ->
                             giftCertificate.getDescription().toLowerCase().contains(substring.toLowerCase())))
-                    .collect(Collectors.toList())) ;
+                    .collect(Collectors.toList()));
         }
         sortedList = sortedList.stream().distinct().collect(Collectors.toList());
         return sortedList;
