@@ -55,11 +55,6 @@ public class CertificateController {
         return service.read();
     }
 
-//    @GetMapping("/query")
-//    public List<GiftCertificate> showByQuery(@RequestParam("query") String query) {
-//        return service.getByPartOfNameOrDescription(query);
-//    }
-
     @GetMapping("/query")
     public List<GiftCertificate> showByQueryOrTag(@RequestParam("sortField") String sortField,
                                                   @RequestParam("query") String query,
