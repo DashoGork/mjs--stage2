@@ -12,4 +12,6 @@ public interface GiftCertificateDao {
     void update(GiftCertificate giftCertificate);
     void delete(long id);
     GiftCertificate read(Date date);
+    void patch(GiftCertificate patchedCertificate,
+               GiftCertificate oldCertificate);
 }

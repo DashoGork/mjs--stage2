@@ -83,9 +83,19 @@ public class CertificateService implements CertificateServiceI {
         tagCertificateDao.deleteCertificate(giftCertificate.getId());
     }
 
-    public void update(Tag tag, GiftCertificate giftCertificate) {
+    public void patch(long id, GiftCertificate patchedCertificate) {
+        GiftCertificate oldCertificate = read(id);
+        giftCertificateDao.patch(patchedCertificate, oldCertificate);
+        List<Long> allTagsIdOfCertificateFromDb =
+                tagCertificateDao.readByCertificate(id);
+        if (patchedCertificate.getTags() != null) {
+            for (Tag tag : patchedCertificate.getTags()) {
+                if (!allTagsIdOfCertificateFromDb.contains(tag.getId())) {
+                    tagCertificateDao.add(tag, oldCertificate);
+                }
+            }
+        }
 
-        giftCertificateDao.update(giftCertificate);
     }
 
     public List<GiftCertificate> getAllCertificatesByTagName(String tagName) {

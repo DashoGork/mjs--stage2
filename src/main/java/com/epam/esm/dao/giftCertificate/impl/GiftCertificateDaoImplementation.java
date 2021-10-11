@@ -22,8 +22,14 @@ public class GiftCertificateDaoImplementation implements GiftCertificateDao {
     private static final String SELECT_GIFT_CERTIFICATE_BY_ID = "select * from mjs2.gift_certificate where id=?";
     private static final String SELECT_ALL_GIFT_CERTIFICATE = "select * from mjs2.gift_certificate";
     private static final String UPDATE_GIFT_CERTIFICATE = "update mjs2" +
-            ".gift_certificate set name=?, description=?, price=?, " +
+            ".gift_certificate set name=?, description=?, " +
+            "price=?, " +
             "duration=?, last_update_date=NOW()\n" +
+            "WHERE id=?";
+    private static final String PATCH_GIFT_CERTIFICATE = "update mjs2" +
+            ".gift_certificate set name=COALESCE(?,?), description=COALESCE(?,?), " +
+            "price=COALESCE(?,?), " +
+            "duration=COALESCE(?,?), last_update_date=NOW()\n" +
             "WHERE id=?";
     private static final String SELECT_GIFT_CERTIFICATE_BY_CREATE_DATE =
             "select * from mjs2.gift_certificate where create_date=?";
@@ -71,6 +77,16 @@ public class GiftCertificateDaoImplementation implements GiftCertificateDao {
         log.info("Update giftCertificate with id = " + giftCertificate.getId());
         jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE, giftCertificate.getName(), giftCertificate.getDescription(),
                 giftCertificate.getPrice(), giftCertificate.getDuration(), giftCertificate.getId());
+    }
+
+    @Override
+    public void patch(GiftCertificate patchedCertificate, GiftCertificate oldCertificate) {
+        jdbcTemplate.update(PATCH_GIFT_CERTIFICATE,
+                patchedCertificate.getName(), oldCertificate.getName(),
+                patchedCertificate.getDescription(), oldCertificate.getDescription(),
+                patchedCertificate.getPrice(), oldCertificate.getPrice(),
+                patchedCertificate.getDuration(), oldCertificate.getDuration(),
+                oldCertificate.getId());
     }
 
     @Override
