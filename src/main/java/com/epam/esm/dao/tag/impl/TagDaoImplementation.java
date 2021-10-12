@@ -4,6 +4,7 @@ import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tag.TagDao;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.model.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 public class TagDaoImplementation implements TagDao {
     private static final String DELETE_TAG = "delete from mjs2.tag where id=?";
@@ -18,12 +20,17 @@ public class TagDaoImplementation implements TagDao {
     private static final String SELECT_TAG_BY_ID = "select * from mjs2.tag where id=?";
     private static final String SELECT_TAG_BY_NAME = "select * from mjs2.tag where name=?";
     private static final String SELECT_ALL_TAGS = "select * from mjs2.tag";
-    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
     private final JdbcTemplate jdbcTemplate;
+    private TagRowMapper rowMapper;
 
     @Autowired
     public TagDaoImplementation(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Autowired
+    public void setRowMapper(TagRowMapper rowMapper) {
+        this.rowMapper = rowMapper;
     }
 
     @Override
@@ -41,7 +48,7 @@ public class TagDaoImplementation implements TagDao {
     @Override
     public Tag read(long id) throws TagNotFoundException {
         log.info("Read tag with id = " + id);
-        return jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), new Object[]{id})
+        return jdbcTemplate.query(SELECT_TAG_BY_ID, rowMapper, new Object[]{id})
                 .stream().findAny()
                 .orElseThrow(() -> new TagNotFoundException("There isn't tag with such id" + id));
     }
@@ -49,14 +56,14 @@ public class TagDaoImplementation implements TagDao {
     @Override
     public Tag read(String name) throws TagNotFoundException {
         log.info("Read tag with name = " + name);
-        return jdbcTemplate.query(SELECT_TAG_BY_NAME, new TagRowMapper(), new Object[]{name})
+        return jdbcTemplate.query(SELECT_TAG_BY_NAME, rowMapper, new Object[]{name})
                 .stream().findAny().orElseThrow(() -> new TagNotFoundException("There isn't tag with such name" + name));
     }
 
     @Override
     public List<Tag> read() {
         log.info("Read all tags");
-        return jdbcTemplate.query(SELECT_ALL_TAGS, new TagRowMapper());
+        return jdbcTemplate.query(SELECT_ALL_TAGS, rowMapper);
     }
 
     @Override

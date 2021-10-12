@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -45,11 +46,9 @@ public class CertificateController {
     }
 
     @GetMapping("/query")
-    public List<GiftCertificate> showByQueryOrTag(@RequestParam("sortField") String sortField,
-                                                  @RequestParam("query") String query,
-                                                  @RequestParam("sortOrder") String sortOrder,
-                                                  @RequestParam("tagName") String tagName) {
-        return service.getByTagOrQueryAndSort(query, sortField, sortOrder, tagName);
+    public List<GiftCertificate> showByQueryOrTag(@RequestBody Map<String, String> params) {
+        return service.getByTagOrQueryAndSort(params.get("query"), params.get("sortField"),
+                params.get("sortOrder"), params.get("tagName"));
     }
 
     @DeleteMapping("/{id}")

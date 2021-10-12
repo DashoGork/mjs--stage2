@@ -18,12 +18,13 @@ public class TagDaoImplementationTest {
     private TagDaoImplementation dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DataSource embeddedDatabase = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
                 .addScript("classpath:test-data.sql")
                 .build();
         dao = new TagDaoImplementation(new JdbcTemplate(embeddedDatabase));
+        dao.setRowMapper(new TagRowMapper());
     }
 
     @Test

@@ -1,10 +1,10 @@
-package com.epam.esm.service;
+package com.epam.esm.dao;
 
 import java.util.List;
 
-public interface Service<BaseEntity> {
+public interface Dao<BaseEntity> {
     void create(BaseEntity entity);
-    void delete(BaseEntity entity);
     List<BaseEntity> read();
     BaseEntity read(long id);
+    void delete(long id);
 }

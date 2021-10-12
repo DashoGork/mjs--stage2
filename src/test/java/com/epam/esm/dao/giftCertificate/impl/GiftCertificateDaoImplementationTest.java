@@ -25,6 +25,7 @@ public class GiftCertificateDaoImplementationTest {
                 .addScript("classpath:test-data.sql")
                 .build();
         dao = new GiftCertificateDaoImplementation(new JdbcTemplate(embeddedDatabase));
+        dao.setRowMapper(new GiftCertificateRowMapper());
     }
 
     @Test

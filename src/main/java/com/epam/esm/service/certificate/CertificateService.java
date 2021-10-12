@@ -10,6 +10,7 @@ import com.epam.esm.enums.SortOptions;
 import com.epam.esm.enums.SortOrder;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CertificateService implements CertificateServiceI {
-    private static final Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
     private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
     private TagCertificateDao tagCertificateDao;

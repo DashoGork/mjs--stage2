@@ -4,6 +4,7 @@ import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.TagCertificateDao;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class TagCertificateDaoImplementation implements TagCertificateDao {
 
@@ -22,7 +24,6 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
     private static final String DELETE_CERTIFICATE = "delete from mjs2.tag_gift_certificate where certificate_id=?";
     private static final String SAVE_CERTIFICATE = "insert into mjs2.tag_gift_certificate (tag_id,certificate_id)  Values(?,?)";
     private static final String SELECT_TAGS_BY_CERTIFICATE_ID = "select tag_id from mjs2.tag_gift_certificate where certificate_id=?";
-    private static Logger log = Logger.getLogger(GiftCertificateDaoImplementation.class.getName());
     private final JdbcTemplate jdbcTemplate;
 
 

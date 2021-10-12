@@ -1,18 +1,14 @@
 package com.epam.esm.exceptions;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@AllArgsConstructor
 public class ApiError {
 
     private HttpStatus status;
     private String message;
     private long code;
-
-    public ApiError(HttpStatus status, String message, long code) {
-        this.status = status;
-        this.message = message;
-        this.code = code;
-    }
 
     public long getCode() {
         return code;

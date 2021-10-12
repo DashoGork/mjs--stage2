@@ -1,14 +1,11 @@
 package com.epam.esm.dao.tag;
 
+import com.epam.esm.dao.Dao;
 import com.epam.esm.model.Tag;
 
 import java.util.List;
 
-public interface TagDao {
-    void create(Tag tag);
-    void delete(long id);
-    Tag read(long id);
+public interface TagDao extends Dao<Tag> {
     Tag read(String name);
-    List<Tag> read();
     void update(String name);
 }
