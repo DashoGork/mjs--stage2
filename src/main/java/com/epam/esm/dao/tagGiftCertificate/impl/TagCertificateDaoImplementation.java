@@ -1,11 +1,9 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
-import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.TagCertificateDao;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

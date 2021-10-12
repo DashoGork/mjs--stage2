@@ -20,7 +20,7 @@ public class TagController {
         this.tagService = tagService;
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<Tag> getAll() {
         return tagService.read();
     }
@@ -38,7 +38,7 @@ public class TagController {
         return getAll();
     }
 
-    @PostMapping("")
+    @PostMapping
     public List<Tag> create(@ModelAttribute("tag") Tag tag,
                             BindingResult bindingResult) {
         if (bindingResult.hasErrors())

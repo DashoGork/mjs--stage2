@@ -4,7 +4,6 @@ import com.epam.esm.dao.Dao;
 import com.epam.esm.model.GiftCertificate;
 
 import java.util.Date;
-import java.util.List;
 
 public interface GiftCertificateDao extends Dao<GiftCertificate> {
     GiftCertificate read(Date date);

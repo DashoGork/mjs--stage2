@@ -21,12 +21,12 @@ public class CertificateController {
         this.service = service;
     }
 
-    @GetMapping()
+    @GetMapping
     public List<GiftCertificate> showAll() {
         return service.read();
     }
 
-    @PostMapping()
+    @PostMapping
     public List<GiftCertificate> createNew(@RequestBody GiftCertificate giftCertificate) {
         service.create(giftCertificate);
         return service.read();
