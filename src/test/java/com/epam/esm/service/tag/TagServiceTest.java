@@ -1,3 +1,4 @@
+/*
 package com.epam.esm.service.tag;
 
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
@@ -26,6 +27,7 @@ public class TagServiceTest {
 
     private TagService service;
     private Tag tag;
+
 
     @Before
     public void setUp() {
@@ -93,4 +95,4 @@ public class TagServiceTest {
     }
 
 
-}
+}*/

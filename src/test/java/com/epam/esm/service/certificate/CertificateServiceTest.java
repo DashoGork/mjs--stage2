@@ -3,8 +3,11 @@ package com.epam.esm.service.certificate;
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.mapper.certificate.CertificateDtoMapper;
+import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
+import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
+import com.epam.esm.model.dto.CertificateDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,59 +35,61 @@ public class CertificateServiceTest {
 
     private CertificateService service;
     private Tag tag;
-    private GiftCertificate giftCertificate;
-    private List<GiftCertificate> expectedList;
+    private Certificate certificate;
+    private List<Certificate> expectedList;
+    private CertificateDtoMapperImplementation mapper;
 
     @Before
     public void setUp() throws Exception {
-        service = new CertificateService(certificateDao, tagDao, tagCertificateDao);
+        service = new CertificateService(certificateDao, tagDao,
+                tagCertificateDao, mapper);
         tag = new Tag();
         tag.setName("name");
         tag.setId(1);
-        giftCertificate = new GiftCertificate();
-        giftCertificate.setName("name");
-        giftCertificate.setDescription("desc");
-        giftCertificate.setDuration(2);
-        giftCertificate.setPrice(12);
-        giftCertificate.setCreateDate(new Date());
-        giftCertificate.setLastUpdateDate(new Date());
+        certificate = new Certificate();
+        certificate.setName("name");
+        certificate.setDescription("desc");
+        certificate.setDuration(2);
+        certificate.setPrice(12);
+        certificate.setCreateDate(new Date());
+        certificate.setLastUpdateDate(new Date());
         expectedList = new ArrayList<>();
-        expectedList.add(giftCertificate);
+        expectedList.add(certificate);
 
     }
 
     @Test
     public void create() {
         doNothing().when(tagDao).create(tag);
-        doNothing().when(certificateDao).create(giftCertificate);
-        when(certificateDao.read(any())).thenReturn(giftCertificate);
-        giftCertificate.setTags(new ArrayList<>());
-        doNothing().when(tagCertificateDao).add(tag, giftCertificate);
-        service.create(giftCertificate);
+        doNothing().when(certificateDao).create(certificate);
+        when(certificateDao.read()).thenReturn(expectedList);
+        certificate.setTags(new ArrayList<>());
+        doNothing().when(tagCertificateDao).add(tag, certificate);
+        service.create(mapper.certificateToCertificateDto(certificate));
     }
 
     @Test
     public void read() {
-        List<GiftCertificate> expected = new ArrayList<>();
-        expected.add(giftCertificate);
+        List<Certificate> expected = new ArrayList<>();
+        expected.add(certificate);
         when(certificateDao.read()).thenReturn(expected);
-        List<GiftCertificate> actualList = service.read();
+        List<CertificateDto> actualList = service.read();
         assertTrue(actualList.equals(expected));
     }
 
     @Test
     public void testRead() {
-        when(certificateDao.read(0)).thenReturn(giftCertificate);
-        GiftCertificate actualCertificate = service.read(0);
-        assertTrue(actualCertificate.getDescription().equals(giftCertificate.getDescription()));
-        assertTrue(actualCertificate.getName().equals(giftCertificate.getName()));
+        when(certificateDao.read(0)).thenReturn(certificate);
+        CertificateDto actualCertificate = service.read(0);
+        assertTrue(actualCertificate.getDescription().equals(certificate.getDescription()));
+        assertTrue(actualCertificate.getName().equals(certificate.getName()));
     }
 
     @Test
     public void delete() {
-        doNothing().when(certificateDao).delete(giftCertificate.getId());
-        doNothing().when(tagCertificateDao).deleteCertificate(giftCertificate.getId());
-        service.delete(giftCertificate);
+        doNothing().when(certificateDao).delete(certificate.getId());
+        doNothing().when(tagCertificateDao).deleteCertificate(certificate.getId());
+        service.delete(mapper.certificateToCertificateDto(certificate));
     }
 
     @Test
@@ -97,39 +102,41 @@ public class CertificateServiceTest {
         expectedListOfIds.add(1l);
         when(tagDao.read(tag.getName())).thenReturn(tag);
         when(tagCertificateDao.readByTag(tag.getId())).thenReturn(expectedListOfIds);
-        when(certificateDao.read(1l)).thenReturn(giftCertificate);
-        List<GiftCertificate> actualList = service.getAllCertificatesByTagName(tag.getName());
+        when(certificateDao.read(1l)).thenReturn(certificate);
+        List<CertificateDto> actualList =
+                service.getAllCertificatesByTagName(tag.getName());
         assertTrue(actualList.equals(expectedList));
     }
 
     @Test
     public void getByPartOfNameOrDescription() {
-        GiftCertificate giftCertificateToRange = new GiftCertificate();
-        giftCertificateToRange.setDescription("ddd");
-        giftCertificateToRange.setName("nnnn");
-        giftCertificateToRange.setId(11);
-        expectedList.add(giftCertificateToRange);
+        Certificate certificateToRange = new Certificate();
+        certificateToRange.setDescription("ddd");
+        certificateToRange.setName("nnnn");
+        certificateToRange.setId(11);
+        expectedList.add(certificateToRange);
         String query = "ddd nnnn";
         when(certificateDao.read()).thenReturn(expectedList);
-        when(certificateDao.read(0)).thenReturn(giftCertificate);
-        when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
-        List<GiftCertificate> actualList = service.getByPartOfNameOrDescription(query);
-        assertTrue(actualList.get(0).getDescription().equals(giftCertificateToRange.getDescription()));
+        when(certificateDao.read(0)).thenReturn(certificate);
+        when(certificateDao.read(11)).thenReturn(certificateToRange);
+        List<CertificateDto> actualList =
+                service.getByPartOfNameOrDescription(query);
+        assertTrue(actualList.get(0).getDescription().equals(certificateToRange.getDescription()));
     }
 
     @Test
     public void sortByAscDesc() {
-        GiftCertificate giftCertificateToRange = new GiftCertificate();
-        giftCertificateToRange.setDescription("ddd");
-        giftCertificateToRange.setName("nnnn");
-        giftCertificateToRange.setId(11);
-        expectedList.add(giftCertificateToRange);
+        Certificate certificateToRange = new Certificate();
+        certificateToRange.setDescription("ddd");
+        certificateToRange.setName("nnnn");
+        certificateToRange.setId(11);
+        expectedList.add(certificateToRange);
         when(certificateDao.read()).thenReturn(expectedList);
-        when(certificateDao.read(0)).thenReturn(giftCertificate);
-        when(certificateDao.read(11)).thenReturn(giftCertificateToRange);
-        List<GiftCertificate> actualListAsc = service.sortByAscDesc("", "name",
+        when(certificateDao.read(0)).thenReturn(certificate);
+        when(certificateDao.read(11)).thenReturn(certificateToRange);
+        List<CertificateDto> actualListAsc = service.sortByAscDesc("", "name",
                 "asc");
-        List<GiftCertificate> actualListDesc = service.sortByAscDesc("",
+        List<CertificateDto> actualListDesc = service.sortByAscDesc("",
                 "name", "desc");
         assertTrue(actualListAsc.get(0) != actualListDesc.get(0));
     }

@@ -1,6 +1,6 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +31,9 @@ public class TagCertificateDaoImplementationTest {
     public void add() {
         Tag tag = new Tag();
         tag.setId(3);
-        GiftCertificate giftCertificate = new GiftCertificate();
-        giftCertificate.setId(3);
-        dao.add(tag, giftCertificate);
+        Certificate certificate = new Certificate();
+        certificate.setId(3);
+        dao.add(tag, certificate);
         List<Long> listOfCertificatesWithTag = dao.readByTag(3);
         assertTrue(listOfCertificatesWithTag.contains(3l));
     }

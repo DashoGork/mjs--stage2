@@ -3,7 +3,7 @@ package com.epam.esm.dao.giftCertificate.impl;
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Certificate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificate> implements GiftCertificateDao {
+public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> implements GiftCertificateDao {
 
     private static final String DELETE_GIFT_CERTIFICATE = "delete from mjs2.gift_certificate where id=?";
     private static final String CREATE_GIFT_CERTIFICATE = "insert into " +
@@ -34,6 +34,8 @@ public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificat
             "WHERE id=?";
     private static final String SELECT_GIFT_CERTIFICATE_BY_CREATE_DATE =
             "select * from mjs2.gift_certificate where create_date=?";
+    private static final String SELECT_GIFT_CERTIFICATE_BY_NAME =
+            "select * from mjs2.gift_certificate where name=?";
     private GiftCertificateRowMapper rowMapper;
 
     @Autowired
@@ -47,24 +49,31 @@ public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificat
     }
 
     @Override
-    public void create(GiftCertificate giftCertificate) {
-        log.info("GiftCertificate created" + giftCertificate.toString());
+    public void create(Certificate certificate) {
+        log.info("GiftCertificate created" + certificate.toString());
         super.getJdbcTemplate().update(CREATE_GIFT_CERTIFICATE,
-                giftCertificate.getName(),
-                giftCertificate.getPrice(), giftCertificate.getDescription(),
-                giftCertificate.getDuration(),
-                giftCertificate.getCreateDate(),
-                giftCertificate.getLastUpdateDate());
+                certificate.getName(),
+                certificate.getPrice(), certificate.getDescription(),
+                certificate.getDuration(),
+                certificate.getCreateDate(),
+                certificate.getLastUpdateDate());
     }
 
     @Override
-    public List<GiftCertificate> read() {
+    public List<Certificate> read() {
         log.info("Read all giftCertificates");
         return super.read(SELECT_ALL_GIFT_CERTIFICATE, rowMapper);
     }
 
+    public Certificate read(String name) {
+        log.info("Read giftCertificate by name");
+        return super.getJdbcTemplate().query(SELECT_GIFT_CERTIFICATE_BY_NAME,
+                        rowMapper, new Object[]{name})
+                .stream().findAny().orElseThrow(() -> new GiftCertificateNotFoundException("Certificate wasn't found. name = " + name));
+    }
+
     @Override
-    public GiftCertificate read(long id) throws GiftCertificateNotFoundException {
+    public Certificate read(long id) throws GiftCertificateNotFoundException {
         log.info("Read giftCertificate with id =" + id);
         try {
             return super.read(SELECT_GIFT_CERTIFICATE_BY_ID, id, rowMapper);
@@ -75,7 +84,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificat
     }
 
     @Override
-    public GiftCertificate read(Date date) throws GiftCertificateNotFoundException {
+    public Certificate read(Date date) throws GiftCertificateNotFoundException {
         log.info("Read giftCertificate with date =" + date);
         return super.getJdbcTemplate().query(SELECT_GIFT_CERTIFICATE_BY_CREATE_DATE,
                         rowMapper, new Object[]{date})
@@ -83,14 +92,14 @@ public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificat
     }
 
     @Override
-    public void update(GiftCertificate giftCertificate) {
-        log.info("Update giftCertificate with id = " + giftCertificate.getId());
-        super.getJdbcTemplate().update(UPDATE_GIFT_CERTIFICATE, giftCertificate.getName(), giftCertificate.getDescription(),
-                giftCertificate.getPrice(), giftCertificate.getDuration(), giftCertificate.getId());
+    public void update(Certificate certificate) {
+        log.info("Update giftCertificate with id = " + certificate.getId());
+        super.getJdbcTemplate().update(UPDATE_GIFT_CERTIFICATE, certificate.getName(), certificate.getDescription(),
+                certificate.getPrice(), certificate.getDuration(), certificate.getId());
     }
 
     @Override
-    public void patch(GiftCertificate patchedCertificate, GiftCertificate oldCertificate) {
+    public void patch(Certificate patchedCertificate, Certificate oldCertificate) {
         super.getJdbcTemplate().update(PATCH_GIFT_CERTIFICATE,
                 patchedCertificate.getName(), oldCertificate.getName(),
                 patchedCertificate.getDescription(), oldCertificate.getDescription(),
@@ -103,6 +112,5 @@ public class GiftCertificateDaoImplementation extends AbstractDao<GiftCertificat
     public void delete(long id) {
         log.info("Delete giftCertificate with id = " + id);
         super.delete(DELETE_GIFT_CERTIFICATE, id);
-        //jdbcTemplate.update(DELETE_GIFT_CERTIFICATE, id);
     }
 }

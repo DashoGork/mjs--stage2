@@ -1,7 +1,7 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
 import com.epam.esm.dao.tagGiftCertificate.TagCertificateDao;
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class TagCertificateDaoImplementation implements TagCertificateDao {
 
 
     @Override
-    public void add(Tag tag, GiftCertificate certificate) {
+    public void add(Tag tag, Certificate certificate) {
         log.info("Save giftCertificate with id = " + certificate.getId() + " with tag id = " + tag.getId());
         jdbcTemplate.update(SAVE_CERTIFICATE, tag.getId(), certificate.getId());
     }

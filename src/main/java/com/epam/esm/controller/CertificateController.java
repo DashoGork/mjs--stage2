@@ -1,9 +1,11 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.service.certificate.CertificateService;
 import com.epam.esm.service.certificate.CertificateServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,38 +24,44 @@ public class CertificateController {
     }
 
     @GetMapping
-    public List<GiftCertificate> showAll() {
+    public List<CertificateDto> showAll() {
         return service.read();
     }
 
     @PostMapping
-    public List<GiftCertificate> createNew(@RequestBody GiftCertificate giftCertificate) {
-        service.create(giftCertificate);
-        return service.read();
+    @ResponseStatus(HttpStatus.CREATED)
+    public CertificateDto createNew(@Validated @RequestBody CertificateDto certificate) {
+        return service.create(certificate);
     }
 
-
     @GetMapping("/{id}")
-    public GiftCertificate show(@PathVariable("id") int id) {
+    public CertificateDto show(@PathVariable("id") int id, @RequestBody Map<String,
+            String> params) {
         return service.read(id);
     }
 
     @PatchMapping("/{id}")
-    public List<GiftCertificate> update(@PathVariable Long id,
-                                        @RequestBody GiftCertificate patchedCertificate) {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public CertificateDto update(@PathVariable Long id,
+                                 @Validated @RequestBody CertificateDto patchedCertificate) {
         service.patch(id, patchedCertificate);
-        return service.read();
+        return service.read(id);
     }
 
     @GetMapping("/query")
-    public List<GiftCertificate> showByQueryOrTag(@RequestBody Map<String, String> params) {
-        return service.getByTagOrQueryAndSort(params.get("query"), params.get("sortField"),
-                params.get("sortOrder"), params.get("tagName"));
+    public List<CertificateDto> showByQueryOrTag(
+            @RequestParam(defaultValue = "", required = false) String query,
+            @RequestParam(defaultValue = "", required = false) String sortField,
+            @RequestParam(defaultValue = "", required = false) String sortOrder,
+            @RequestParam(defaultValue = "", required = false) String tagName
+    ) {
+        return service.getByTagOrQueryAndSort(query, sortField,
+                sortOrder, tagName);
     }
 
     @DeleteMapping("/{id}")
-    public List<GiftCertificate> delete(@PathVariable("id") int id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") int id) {
         service.delete(service.read(id));
-        return service.read();
     }
 }

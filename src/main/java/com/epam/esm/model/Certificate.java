@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Component
-public class GiftCertificate extends BaseEntity {
+public class Certificate extends BaseEntity {
     private String description;
     private int price;
     private int duration;
@@ -21,7 +21,7 @@ public class GiftCertificate extends BaseEntity {
     private Date lastUpdateDate;
     private List<Tag> tags;
 
-    public GiftCertificate(String name, String description, int price, int duration, Date createDate, Date lastUpdateDate, List<Tag> tags) {
+    public Certificate(String name, String description, int price, int duration, Date createDate, Date lastUpdateDate, List<Tag> tags) {
         super();
         super.setName(name);
         this.description = description;

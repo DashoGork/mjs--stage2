@@ -1,13 +1,17 @@
 package com.epam.esm.dao.giftCertificate;
 
 import com.epam.esm.dao.Dao;
-import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Certificate;
 
 import java.util.Date;
 
-public interface GiftCertificateDao extends Dao<GiftCertificate> {
-    GiftCertificate read(Date date);
-    void patch(GiftCertificate patchedCertificate,
-               GiftCertificate oldCertificate);
-    void update(GiftCertificate giftCertificate);
+public interface GiftCertificateDao extends Dao<Certificate> {
+    Certificate read(Date date);
+
+    void patch(Certificate patchedCertificate,
+               Certificate oldCertificate);
+
+    void update(Certificate certificate);
+
+    Certificate read(String name);
 }
