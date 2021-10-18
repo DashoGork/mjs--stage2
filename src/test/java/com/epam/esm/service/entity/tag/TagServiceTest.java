@@ -1,5 +1,5 @@
 /*
-package com.epam.esm.service.tag;
+package com.epam.esm.service.entity.tag;
 
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.exceptions.TagNotFoundException;

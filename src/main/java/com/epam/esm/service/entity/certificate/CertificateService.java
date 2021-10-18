@@ -1,4 +1,4 @@
-package com.epam.esm.service.certificate;
+package com.epam.esm.service.entity.certificate;
 
 import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
@@ -9,11 +9,8 @@ import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
 import com.epam.esm.enums.SortOptions;
 import com.epam.esm.enums.SortOrder;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
-import com.epam.esm.mapper.certificate.CertificateDtoMapper;
-import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
-import com.epam.esm.model.dto.CertificateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,24 +24,21 @@ public class CertificateService implements CertificateServiceI {
     private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
     private TagCertificateDao tagCertificateDao;
-    private CertificateDtoMapper mapper;
+
 
     @Autowired
     public CertificateService(
             GiftCertificateDaoImplementation giftCertificate,
             TagDaoImplementation tagDao,
-            TagCertificateDaoImplementation tagCertificateDao,
-            CertificateDtoMapperImplementation mapper) {
+            TagCertificateDaoImplementation tagCertificateDao
+    ) {
         this.giftCertificateDao = giftCertificate;
         this.tagDao = tagDao;
         this.tagCertificateDao = tagCertificateDao;
-        this.mapper = mapper;
     }
 
-    public CertificateDto create(CertificateDto certificateDto) {
+    public Certificate create(Certificate certificate) {
         Date dateOfCreation = new Date();
-        Certificate certificate =
-                mapper.certificateDtoToCertificate(certificateDto);
         try {
             giftCertificateDao.read(certificate.getName());
         } catch (GiftCertificateNotFoundException e) {
@@ -58,13 +52,13 @@ public class CertificateService implements CertificateServiceI {
                 tagDao.update(tag.getName());
                 tagCertificateDao.add(tagDao.read(tag.getName()), createdCertificate);
             }
-            return mapper.certificateToCertificateDto(createdCertificate);
+            return createdCertificate;
         }
-        return mapper.certificateToCertificateDto(giftCertificateDao.read(certificate.getName()));
+        return giftCertificateDao.read(certificate.getName());
     }
 
     @Override
-    public List<CertificateDto> read() {
+    public List<Certificate> read() {
         List<Certificate> certificates = giftCertificateDao.read();
         List<Long> tagIds;
         List<Tag> tagsForEachCertificate = new ArrayList<>();
@@ -76,13 +70,11 @@ public class CertificateService implements CertificateServiceI {
             certificate.setTags(tagsForEachCertificate);
             tagsForEachCertificate = new ArrayList<>();
         }
-        List<CertificateDto> dtoCertificates =
-                certificates.stream().map((certificate -> mapper.certificateToCertificateDto(certificate))).collect(Collectors.toList());
-        return dtoCertificates;
+        return certificates;
     }
 
     @Override
-    public CertificateDto read(long id) {
+    public Certificate read(long id) {
         Certificate certificate = giftCertificateDao.read(id);
         List<Long> tagIds;
         List<Tag> tags = new ArrayList<>();
@@ -91,23 +83,21 @@ public class CertificateService implements CertificateServiceI {
             tags.add(tagDao.read(tagId));
         }
         certificate.setTags(tags);
-        return mapper.certificateToCertificateDto(certificate);
+        return certificate;
     }
 
-    public void delete(CertificateDto certificate) {
+    public void delete(Certificate certificate) {
         giftCertificateDao.delete(certificate.getId());
         tagCertificateDao.deleteCertificate(certificate.getId());
     }
 
-    public void patch(long id, CertificateDto patchedCertificate) {
-        Certificate oldCertificate = mapper.certificateDtoToCertificate(read(id));
-        Certificate certificateFromRequest =
-                mapper.certificateDtoToCertificate(patchedCertificate);
-        giftCertificateDao.patch(certificateFromRequest, oldCertificate);
+    public void patch(long id, Certificate patchedCertificate) {
+        Certificate oldCertificate = read(id);
+        giftCertificateDao.patch(patchedCertificate, oldCertificate);
         List<Long> allTagsIdOfCertificateFromDb =
                 tagCertificateDao.readByCertificate(id);
-        if (certificateFromRequest.getTags() != null) {
-            for (Tag tag : certificateFromRequest.getTags()) {
+        if (patchedCertificate.getTags() != null) {
+            for (Tag tag : patchedCertificate.getTags()) {
                 if (!allTagsIdOfCertificateFromDb.contains(tag.getId())) {
                     tagCertificateDao.add(tag, oldCertificate);
                 }
@@ -116,22 +106,21 @@ public class CertificateService implements CertificateServiceI {
 
     }
 
-    public List<CertificateDto> getAllCertificatesByTagName(String tagName) {
+    public List<Certificate> getAllCertificatesByTagName(String tagName) {
         List<Long> ids = tagCertificateDao.readByTag(tagDao.read(tagName).getId());
         List<Certificate> certificates = new ArrayList<>();
         for (Long id : ids) {
-            certificates.add(mapper.certificateDtoToCertificate(read(id)));
+            certificates.add(read(id));
         }
-        return certificates.stream().map((certificate -> mapper.certificateToCertificateDto(certificate)))
-                .collect(Collectors.toList());
+        return certificates;
     }
 
-    public List<CertificateDto> getByPartOfNameOrDescription(String query) {
+    public List<Certificate> getByPartOfNameOrDescription(String query) {
         List<Certificate> certificates = searchByPartOfDescription(query);
         certificates.addAll(searchByPartOfName(query));
         certificates = certificates.stream().distinct().collect(Collectors.toList());
         for (Certificate certificate : certificates) {
-            certificate.setTags(mapper.certificateDtoToCertificate(read(certificate.getId())).getTags());
+            certificate.setTags(read(certificate.getId()).getTags());
         }
         certificates = certificates.stream().sorted(new Comparator<Certificate>() {
             @Override
@@ -144,34 +133,34 @@ public class CertificateService implements CertificateServiceI {
             }
         }).collect(Collectors.toList());
 
-        return certificates.stream().map((certificate -> mapper.certificateToCertificateDto(certificate))).collect(Collectors.toList());
+        return certificates;
     }
 
-    public List<CertificateDto> sortByAscDesc(String name, String sortField, String sortOrder) {
+    public List<Certificate> sortByAscDesc(String name, String sortField, String sortOrder) {
         if (name != null & !name.isEmpty()) {
-            List<Certificate> listToSort = certificateDtoListToCertificateList(getByPartOfNameOrDescription(name));
-            return certificateListToCertificateDtoList(sortByAscDesc(sortField, sortOrder, listToSort));
+            List<Certificate> listToSort = (getByPartOfNameOrDescription(name));
+            return (sortByAscDesc(sortField, sortOrder, listToSort));
         } else {
-            return certificateListToCertificateDtoList(sortByAscDesc(sortField, sortOrder, certificateDtoListToCertificateList(read())));
+            return (sortByAscDesc(sortField, sortOrder, (read())));
         }
     }
 
-    public List<CertificateDto> getByTagOrQueryAndSort(String name,
-                                                       String sortField,
-                                                       String sortOrder,
-                                                       String tagName) {
+    public List<Certificate> getByTagOrQueryAndSort(String name,
+                                                    String sortField,
+                                                    String sortOrder,
+                                                    String tagName) {
         List<Certificate> certificates = new ArrayList<>();
         if (!name.isEmpty() & name != null) {
-            certificates.addAll(certificateDtoListToCertificateList(getByPartOfNameOrDescription(name)));
+            certificates.addAll((getByPartOfNameOrDescription(name)));
         }
         if (!tagName.isEmpty() & tagName != null) {
-            certificates.addAll(certificateDtoListToCertificateList(getAllCertificatesByTagName(tagName)));
+            certificates.addAll((getAllCertificatesByTagName(tagName)));
             certificates = certificates.stream().distinct().collect(Collectors.toList());
         }
         if (certificates.isEmpty()) {
-            certificates.addAll(certificateDtoListToCertificateList(read()));
+            certificates.addAll((read()));
         }
-        return certificateListToCertificateDtoList(sortByAscDesc(sortField, sortOrder, certificates));
+        return (sortByAscDesc(sortField, sortOrder, certificates));
     }
 
     private List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
@@ -205,7 +194,7 @@ public class CertificateService implements CertificateServiceI {
     List<Certificate> searchByPartOfName(String query) {
         log.info("Search giftCertificates by part of name with query = " + query);
         List<Certificate> listOfAll =
-                certificateDtoListToCertificateList(read());
+                read();
         List<Certificate> sortedList = new ArrayList<>();
         for (String substring : query.split(" ")) {
             sortedList.addAll(listOfAll.stream()
@@ -220,7 +209,7 @@ public class CertificateService implements CertificateServiceI {
     List<Certificate> searchByPartOfDescription(String query) {
         log.info("Search giftCertificates by part of description with query = " + query);
         List<Certificate> listOfAll =
-                certificateDtoListToCertificateList(read());
+                read();
         List<Certificate> sortedList = new ArrayList<>();
         for (String substring : query.split(" ")) {
             sortedList.addAll(listOfAll.stream()
@@ -232,15 +221,4 @@ public class CertificateService implements CertificateServiceI {
         return sortedList;
     }
 
-    private List<Certificate> certificateDtoListToCertificateList(List<CertificateDto> certificateDtoList) {
-        return certificateDtoList.stream()
-                .map((certificateDto -> mapper.certificateDtoToCertificate(certificateDto)))
-                .collect(Collectors.toList());
-    }
-
-    private List<CertificateDto> certificateListToCertificateDtoList(List<Certificate> certificateList) {
-        return certificateList.stream()
-                .map((certificate -> mapper.certificateToCertificateDto(certificate)))
-                .collect(Collectors.toList());
-    }
 }

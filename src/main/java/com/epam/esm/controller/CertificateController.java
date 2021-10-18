@@ -1,8 +1,8 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.model.dto.CertificateDto;
-import com.epam.esm.service.certificate.CertificateService;
-import com.epam.esm.service.certificate.CertificateServiceI;
+import com.epam.esm.service.dto.certificate.CertificateDtoService;
+import com.epam.esm.service.dto.certificate.CertificateDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -16,10 +16,10 @@ import java.util.Map;
 @RequestMapping("/certificates")
 public class CertificateController {
 
-    private CertificateServiceI service;
+    private CertificateDtoServiceI service;
 
     @Autowired
-    public CertificateController(CertificateService service) {
+    public CertificateController(CertificateDtoService service) {
         this.service = service;
     }
 

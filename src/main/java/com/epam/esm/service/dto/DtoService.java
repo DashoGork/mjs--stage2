@@ -1,8 +1,8 @@
-package com.epam.esm.service;
+package com.epam.esm.service.dto;
 
 import java.util.List;
 
-public interface Service<BaseEntityDto> {
+public interface DtoService<BaseEntityDto> {
     BaseEntityDto create(BaseEntityDto entity);
 
     void delete(BaseEntityDto entity);

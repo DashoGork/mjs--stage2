@@ -1,11 +1,11 @@
-package com.epam.esm.service.certificate;
+package com.epam.esm.service.dto.certificate;
 
 import com.epam.esm.model.dto.CertificateDto;
-import com.epam.esm.service.Service;
+import com.epam.esm.service.entity.Service;
 
 import java.util.List;
 
-public interface CertificateServiceI extends Service<CertificateDto> {
+public interface CertificateDtoServiceI extends Service<CertificateDto> {
     void patch(long id, CertificateDto patchedCertificate);
 
     List<CertificateDto> getAllCertificatesByTagName(String tagName);

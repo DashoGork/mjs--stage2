@@ -1,9 +1,8 @@
-package com.epam.esm.service.certificate;
+package com.epam.esm.service.entity.certificate;
 
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
-import com.epam.esm.mapper.certificate.CertificateDtoMapper;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
@@ -42,7 +41,7 @@ public class CertificateServiceTest {
     @Before
     public void setUp() throws Exception {
         service = new CertificateService(certificateDao, tagDao,
-                tagCertificateDao, mapper);
+                tagCertificateDao);
         tag = new Tag();
         tag.setName("name");
         tag.setId(1);
@@ -65,7 +64,7 @@ public class CertificateServiceTest {
         when(certificateDao.read()).thenReturn(expectedList);
         certificate.setTags(new ArrayList<>());
         doNothing().when(tagCertificateDao).add(tag, certificate);
-        service.create(mapper.certificateToCertificateDto(certificate));
+        service.create((certificate));
     }
 
     @Test
@@ -73,14 +72,14 @@ public class CertificateServiceTest {
         List<Certificate> expected = new ArrayList<>();
         expected.add(certificate);
         when(certificateDao.read()).thenReturn(expected);
-        List<CertificateDto> actualList = service.read();
+        List<Certificate> actualList = service.read();
         assertTrue(actualList.equals(expected));
     }
 
     @Test
     public void testRead() {
         when(certificateDao.read(0)).thenReturn(certificate);
-        CertificateDto actualCertificate = service.read(0);
+        Certificate actualCertificate = service.read(0);
         assertTrue(actualCertificate.getDescription().equals(certificate.getDescription()));
         assertTrue(actualCertificate.getName().equals(certificate.getName()));
     }
@@ -89,7 +88,7 @@ public class CertificateServiceTest {
     public void delete() {
         doNothing().when(certificateDao).delete(certificate.getId());
         doNothing().when(tagCertificateDao).deleteCertificate(certificate.getId());
-        service.delete(mapper.certificateToCertificateDto(certificate));
+        service.delete((certificate));
     }
 
     @Test
@@ -103,7 +102,7 @@ public class CertificateServiceTest {
         when(tagDao.read(tag.getName())).thenReturn(tag);
         when(tagCertificateDao.readByTag(tag.getId())).thenReturn(expectedListOfIds);
         when(certificateDao.read(1l)).thenReturn(certificate);
-        List<CertificateDto> actualList =
+        List<Certificate> actualList =
                 service.getAllCertificatesByTagName(tag.getName());
         assertTrue(actualList.equals(expectedList));
     }
@@ -119,7 +118,7 @@ public class CertificateServiceTest {
         when(certificateDao.read()).thenReturn(expectedList);
         when(certificateDao.read(0)).thenReturn(certificate);
         when(certificateDao.read(11)).thenReturn(certificateToRange);
-        List<CertificateDto> actualList =
+        List<Certificate> actualList =
                 service.getByPartOfNameOrDescription(query);
         assertTrue(actualList.get(0).getDescription().equals(certificateToRange.getDescription()));
     }
@@ -134,9 +133,9 @@ public class CertificateServiceTest {
         when(certificateDao.read()).thenReturn(expectedList);
         when(certificateDao.read(0)).thenReturn(certificate);
         when(certificateDao.read(11)).thenReturn(certificateToRange);
-        List<CertificateDto> actualListAsc = service.sortByAscDesc("", "name",
+        List<Certificate> actualListAsc = service.sortByAscDesc("", "name",
                 "asc");
-        List<CertificateDto> actualListDesc = service.sortByAscDesc("",
+        List<Certificate> actualListDesc = service.sortByAscDesc("",
                 "name", "desc");
         assertTrue(actualListAsc.get(0) != actualListDesc.get(0));
     }
