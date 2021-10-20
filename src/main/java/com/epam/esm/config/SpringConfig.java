@@ -6,8 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -22,6 +23,7 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan("com.epam.esm")
 @EnableWebMvc
+@EnableTransactionManagement
 public class SpringConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
@@ -65,5 +67,10 @@ public class SpringConfig implements WebMvcConfigurer {
     @Bean
     public JdbcTemplate jdbcTemplate() throws NamingException {
         return new JdbcTemplate(dataSource());
+    }
+
+    @Bean
+    public PlatformTransactionManager txManager() throws NamingException {
+        return new DataSourceTransactionManager(dataSource());
     }
 }

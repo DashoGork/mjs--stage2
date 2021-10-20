@@ -1,4 +1,4 @@
-/*
+
 package com.epam.esm.service.entity.tag;
 
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
@@ -93,6 +93,4 @@ public class TagServiceTest {
         expectedException.expect(TagNotFoundException.class);
         Tag actualTag = service.read(22);
     }
-
-
-}*/
+}

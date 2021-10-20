@@ -23,8 +23,7 @@ public class TagController {
 
     @GetMapping
     public List<TagDto> getAll() {
-        List<TagDto> gg = tagService.read();
-        return gg;
+        return tagService.read();
     }
 
     @GetMapping("/{id}")

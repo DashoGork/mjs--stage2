@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -49,6 +50,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
+    @Transactional
     public void create(Certificate certificate) {
         log.info("GiftCertificate created" + certificate.toString());
         super.getJdbcTemplate().update(CREATE_GIFT_CERTIFICATE,
@@ -99,6 +101,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
+    @Transactional
     public void patch(Certificate patchedCertificate, Certificate oldCertificate) {
         super.getJdbcTemplate().update(PATCH_GIFT_CERTIFICATE,
                 patchedCertificate.getName(), oldCertificate.getName(),
@@ -109,6 +112,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
+    @Transactional
     public void delete(long id) {
         log.info("Delete giftCertificate with id = " + id);
         super.delete(DELETE_GIFT_CERTIFICATE, id);

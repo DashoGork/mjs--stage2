@@ -9,7 +9,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -35,15 +34,15 @@ public class CertificateController {
     }
 
     @GetMapping("/{id}")
-    public CertificateDto show(@PathVariable("id") int id, @RequestBody Map<String,
-            String> params) {
+    public CertificateDto show(@PathVariable("id") int id) {
         return service.read(id);
     }
 
     @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public CertificateDto update(@PathVariable Long id,
                                  @Validated @RequestBody CertificateDto patchedCertificate) {
+
         service.patch(id, patchedCertificate);
         return service.read(id);
     }

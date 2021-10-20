@@ -1,10 +1,10 @@
 package com.epam.esm.model.dto;
 
+import com.epam.esm.exceptions.ParameterValidationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.DecimalMin;
 import java.util.List;
 
 @Setter
@@ -12,9 +12,26 @@ import java.util.List;
 @Component
 public class CertificateDto extends BaseEntityDto {
     private String description;
-    @DecimalMin(value = "1")
+    private String name;
     private int price;
-    @DecimalMin(value = "1")
     private int duration;
     private List<TagDto> tags;
+
+    public void setPrice(int price) {
+        if (price > 0) {
+            this.price = price;
+        } else {
+            throw new ParameterValidationException("invalid price. should be " +
+                    "more than 1. " + price);
+        }
+    }
+
+    public void setDuration(int duration) {
+        if (duration > 0) {
+            this.duration = duration;
+        } else {
+            throw new ParameterValidationException("invalid duration. should be " +
+                    "more than 1. " + duration);
+        }
+    }
 }

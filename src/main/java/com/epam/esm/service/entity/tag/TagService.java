@@ -2,7 +2,6 @@ package com.epam.esm.service.entity.tag;
 
 import com.epam.esm.dao.tag.TagDao;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
-import com.epam.esm.mapper.tag.TagDtoMapperImplementation;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,7 @@ public class TagService implements TagServiceI {
     private TagDao tagDao;
 
     @Autowired
-    public TagService(TagDaoImplementation tagDao,
-                      TagDtoMapperImplementation mapper) {
+    public TagService(TagDaoImplementation tagDao) {
         this.tagDao = tagDao;
     }
 

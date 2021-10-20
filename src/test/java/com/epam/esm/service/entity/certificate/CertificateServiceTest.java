@@ -6,7 +6,6 @@ import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
-import com.epam.esm.model.dto.CertificateDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 

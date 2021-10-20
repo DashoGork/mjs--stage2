@@ -51,6 +51,7 @@ public class CertificateService implements CertificateServiceI {
             for (Tag tag : createdCertificate.getTags()) {
                 tagDao.update(tag.getName());
                 tagCertificateDao.add(tagDao.read(tag.getName()), createdCertificate);
+                tag.setId(tagDao.read(tag.getName()).getId());
             }
             return createdCertificate;
         }
@@ -98,8 +99,9 @@ public class CertificateService implements CertificateServiceI {
                 tagCertificateDao.readByCertificate(id);
         if (patchedCertificate.getTags() != null) {
             for (Tag tag : patchedCertificate.getTags()) {
-                if (!allTagsIdOfCertificateFromDb.contains(tag.getId())) {
-                    tagCertificateDao.add(tag, oldCertificate);
+                Tag tagFromDb = tagDao.read(tag.getName());
+                if (!allTagsIdOfCertificateFromDb.contains(tagFromDb.getId())) {
+                    tagCertificateDao.add(tagFromDb, oldCertificate);
                 }
             }
         }
@@ -152,6 +154,7 @@ public class CertificateService implements CertificateServiceI {
         List<Certificate> certificates = new ArrayList<>();
         if (!name.isEmpty() & name != null) {
             certificates.addAll((getByPartOfNameOrDescription(name)));
+            certificates = certificates.stream().distinct().collect(Collectors.toList());
         }
         if (!tagName.isEmpty() & tagName != null) {
             certificates.addAll((getAllCertificatesByTagName(tagName)));
@@ -220,5 +223,4 @@ public class CertificateService implements CertificateServiceI {
         sortedList = sortedList.stream().distinct().collect(Collectors.toList());
         return sortedList;
     }
-
 }
