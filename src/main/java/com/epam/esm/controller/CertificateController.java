@@ -23,9 +23,16 @@ public class CertificateController {
     }
 
     @GetMapping
-    public List<CertificateDto> showAll() {
-        return service.read();
+    public List<CertificateDto> showAll(
+            @RequestParam(defaultValue = "", required = false) String name,
+            @RequestParam(defaultValue = "", required = false) String description,
+            @RequestParam(defaultValue = "", required = false) String sortField,
+            @RequestParam(defaultValue = "", required = false) String sortOrder,
+            @RequestParam(defaultValue = "", required = false) String tagName) {
+        return service.getByTagOrQueryAndSort(name, description, sortField,
+                sortOrder, tagName);
     }
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -42,20 +49,8 @@ public class CertificateController {
     @ResponseStatus(HttpStatus.OK)
     public CertificateDto update(@PathVariable Long id,
                                  @Validated @RequestBody CertificateDto patchedCertificate) {
-
         service.patch(id, patchedCertificate);
         return service.read(id);
-    }
-
-    @GetMapping("/query")
-    public List<CertificateDto> showByQueryOrTag(
-            @RequestParam(defaultValue = "", required = false) String query,
-            @RequestParam(defaultValue = "", required = false) String sortField,
-            @RequestParam(defaultValue = "", required = false) String sortOrder,
-            @RequestParam(defaultValue = "", required = false) String tagName
-    ) {
-        return service.getByTagOrQueryAndSort(query, sortField,
-                sortOrder, tagName);
     }
 
     @DeleteMapping("/{id}")

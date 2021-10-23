@@ -3,6 +3,7 @@ package com.epam.esm.service.entity.certificate;
 import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
 import com.epam.esm.dao.tag.impl.TagDaoImplementation;
 import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
+import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
@@ -17,8 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateServiceTest {
@@ -52,17 +52,29 @@ public class CertificateServiceTest {
         certificate.setLastUpdateDate(new Date());
         expectedList = new ArrayList<>();
         expectedList.add(certificate);
+    }
 
+    @Test
+    public void createAlreadyExisting() {
+        doNothing().when(tagDao).create(tag);
+        doNothing().when(certificateDao).create(certificate);
+        when(certificateDao.read(anyString())).thenReturn(certificate);
+        certificate.setTags(new ArrayList<>());
+        doNothing().when(tagCertificateDao).add(tag, certificate);
+        Certificate actualCertificate = service.create((certificate));
+        assertTrue(actualCertificate.equals(certificate));
     }
 
     @Test
     public void create() {
         doNothing().when(tagDao).create(tag);
         doNothing().when(certificateDao).create(certificate);
-        when(certificateDao.read()).thenReturn(expectedList);
+        when(certificateDao.read("name")).thenThrow(new GiftCertificateNotFoundException("not found"));
         certificate.setTags(new ArrayList<>());
         doNothing().when(tagCertificateDao).add(tag, certificate);
+        when(certificateDao.read((Date) any())).thenReturn(certificate);
         service.create((certificate));
+        verify(certificateDao).create(certificate);
     }
 
     @Test
@@ -87,10 +99,7 @@ public class CertificateServiceTest {
         doNothing().when(certificateDao).delete(certificate.getId());
         doNothing().when(tagCertificateDao).deleteCertificate(certificate.getId());
         service.delete((certificate));
-    }
-
-    @Test
-    public void update() {
+        verify(certificateDao).delete(certificate.getId());
     }
 
     @Test
@@ -106,37 +115,47 @@ public class CertificateServiceTest {
     }
 
     @Test
-    public void getByPartOfNameOrDescription() {
-        Certificate certificateToRange = new Certificate();
-        certificateToRange.setDescription("ddd");
-        certificateToRange.setName("nnnn");
-        certificateToRange.setId(11);
-        expectedList.add(certificateToRange);
-        String query = "ddd nnnn";
-        when(certificateDao.read()).thenReturn(expectedList);
+    public void patch() {
+        Certificate patchedCertificate = new Certificate();
+        patchedCertificate.setPrice(300);
         when(certificateDao.read(0)).thenReturn(certificate);
-        when(certificateDao.read(11)).thenReturn(certificateToRange);
-        List<Certificate> actualList =
-                service.getByPartOfNameOrDescription(query);
-        assertTrue(actualList.get(0).getDescription().equals(certificateToRange.getDescription()));
+        doNothing().when(certificateDao).patch(patchedCertificate,
+                certificate);
+        when(tagCertificateDao.readByCertificate(0)).thenReturn(new ArrayList<>());
+        service.patch(0, patchedCertificate);
+        verify(certificateDao).patch(patchedCertificate, certificate);
     }
 
     @Test
-    public void sortByAscDesc() {
-        Certificate certificateToRange = new Certificate();
-        certificateToRange.setDescription("ddd");
-        certificateToRange.setName("nnnn");
-        certificateToRange.setId(11);
-        expectedList.add(certificateToRange);
+    public void getCertificatesByCriteriaWithoutSortOptionAndQuery() {
         when(certificateDao.read()).thenReturn(expectedList);
-        when(certificateDao.read(0)).thenReturn(certificate);
-        when(certificateDao.read(11)).thenReturn(certificateToRange);
-        List<Certificate> actualListAsc = service.sortByAscDesc("", "name",
-                "asc");
-        List<Certificate> actualListDesc = service.sortByAscDesc("",
-                "name", "desc");
-        assertTrue(actualListAsc.get(0) != actualListDesc.get(0));
+        assertTrue(service.getCertificatesByCriteria("", "", "", "", "").equals(expectedList));
     }
 
+    @Test
+    public void getCertificatesByCriteria() {
 
+    }
+
+    @Test
+    public void searchByPartOfName() {
+        Certificate certificate = new Certificate();
+        certificate.setName("11111");
+        expectedList.add(certificate);
+        when(certificateDao.read()).thenReturn(expectedList);
+        assertTrue(service.searchByPartOfName("1").size() == 1);
+        assertTrue(service.searchByPartOfName("1").get(0).equals(certificate));
+    }
+
+    @Test
+    public void searchByPartOfDescription() {
+        Certificate additionalCertificate = new Certificate();
+        additionalCertificate.setDescription("11111");
+        expectedList.add(additionalCertificate);
+        when(certificateDao.read()).thenReturn(expectedList);
+        assertTrue(service.searchByPartOfDescription("desc").size() == 1);
+        assertTrue(service.searchByPartOfDescription("desc").get(0).equals(certificate));
+        assertTrue(service.searchByPartOfDescription("1").size() == 1);
+        assertTrue(service.searchByPartOfDescription("1").get(0).equals(additionalCertificate));
+    }
 }

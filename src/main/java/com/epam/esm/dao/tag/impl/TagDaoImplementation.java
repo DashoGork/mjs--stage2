@@ -33,14 +33,14 @@ public class TagDaoImplementation extends AbstractDao<Tag> implements TagDao {
     }
 
     @Override
-    @Transactional
+    @Transactional(transactionManager = "txManager")
     public void create(Tag tag) {
         log.info("Create tag with name = " + tag.getName());
         super.getJdbcTemplate().update(SAVE_TAG, tag.getName());
     }
 
     @Override
-    @Transactional
+    @Transactional(transactionManager = "txManager")
     public void delete(long id) {
         log.info("Delete tag with id = " + id);
         super.delete(DELETE_TAG, id);

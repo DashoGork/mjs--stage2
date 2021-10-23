@@ -18,20 +18,20 @@ public class CertificateDto extends BaseEntityDto {
     private List<TagDto> tags;
 
     public void setPrice(int price) {
-        if (price > 0) {
+        if (price > -1) {
             this.price = price;
         } else {
             throw new ParameterValidationException("invalid price. should be " +
-                    "more than 1. " + price);
+                    "more than -1. " + price);
         }
     }
 
     public void setDuration(int duration) {
-        if (duration > 0) {
+        if (duration > -1) {
             this.duration = duration;
         } else {
             throw new ParameterValidationException("invalid duration. should be " +
-                    "more than 1. " + duration);
+                    "more than -1. " + duration);
         }
     }
 }

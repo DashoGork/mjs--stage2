@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
+
 @Slf4j
 @Repository
 public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> implements GiftCertificateDao {
@@ -50,7 +51,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
-    @Transactional
+    @Transactional(transactionManager = "txManager")
     public void create(Certificate certificate) {
         log.info("GiftCertificate created" + certificate.toString());
         super.getJdbcTemplate().update(CREATE_GIFT_CERTIFICATE,
@@ -94,6 +95,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
+    @Transactional(transactionManager = "txManager")
     public void update(Certificate certificate) {
         log.info("Update giftCertificate with id = " + certificate.getId());
         super.getJdbcTemplate().update(UPDATE_GIFT_CERTIFICATE, certificate.getName(), certificate.getDescription(),
@@ -101,7 +103,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
-    @Transactional
+    @Transactional(transactionManager = "txManager")
     public void patch(Certificate patchedCertificate, Certificate oldCertificate) {
         super.getJdbcTemplate().update(PATCH_GIFT_CERTIFICATE,
                 patchedCertificate.getName(), oldCertificate.getName(),
@@ -112,7 +114,7 @@ public class GiftCertificateDaoImplementation extends AbstractDao<Certificate> i
     }
 
     @Override
-    @Transactional
+    @Transactional(transactionManager = "txManager")
     public void delete(long id) {
         log.info("Delete giftCertificate with id = " + id);
         super.delete(DELETE_GIFT_CERTIFICATE, id);

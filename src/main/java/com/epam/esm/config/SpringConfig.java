@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan("com.epam.esm")
 @EnableWebMvc
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 public class SpringConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;

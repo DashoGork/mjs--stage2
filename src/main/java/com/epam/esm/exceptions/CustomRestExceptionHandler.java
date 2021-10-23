@@ -46,10 +46,16 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(fieldError -> fieldError.getDefaultMessage())
                 .collect(Collectors.toList());
         ApiError errorDetails = new ApiError(
-                ex.getLocalizedMessage(), ARGUMENT_NOT_VALID.getErrorCode());
+                errorList.toString(), ARGUMENT_NOT_VALID.getErrorCode());
         return handleExceptionInternal(ex, errorDetails, headers, HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiError springHandleIllegalArgumentException(IllegalArgumentException exception) {
+        return new ApiError(exception.getMessage(), ErrorCode.TAG_NOT_FOUND.getErrorCode());
+    }
 
     @ExceptionHandler(ParameterValidationException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

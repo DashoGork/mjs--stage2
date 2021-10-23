@@ -53,24 +53,10 @@ public class CertificateDtoService implements CertificateDtoServiceI {
     }
 
     @Override
-    public List<CertificateDto> getAllCertificatesByTagName(String tagName) {
-        return certificateListToCertificateDtoList(service.getAllCertificatesByTagName(tagName));
-    }
-
-    @Override
-    public List<CertificateDto> getByPartOfNameOrDescription(String query) {
-        return certificateListToCertificateDtoList(service.getByPartOfNameOrDescription(query));
-    }
-
-    @Override
-    public List<CertificateDto> sortByAscDesc(String name, String sortField, String sortOrder) {
-        return certificateListToCertificateDtoList(service.sortByAscDesc(name
-                , sortField, sortOrder));
-    }
-
-    @Override
-    public List<CertificateDto> getByTagOrQueryAndSort(String name, String sortField, String sortOrder, String tagName) {
-        return certificateListToCertificateDtoList(service.getByTagOrQueryAndSort(name
+    public List<CertificateDto> getByTagOrQueryAndSort(String name,
+                                                       String description,
+                                                       String sortField, String sortOrder, String tagName) {
+        return certificateListToCertificateDtoList(service.getCertificatesByCriteria(name, description
                 , sortField, sortOrder, tagName));
     }
 

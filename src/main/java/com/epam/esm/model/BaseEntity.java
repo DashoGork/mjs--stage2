@@ -1,12 +1,12 @@
 package com.epam.esm.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 @Setter
 @Getter
-@Component
+@EqualsAndHashCode
 public class BaseEntity {
     private long id;
     private String name;

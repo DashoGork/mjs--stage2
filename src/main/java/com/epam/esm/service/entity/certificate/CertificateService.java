@@ -105,93 +105,54 @@ public class CertificateService implements CertificateServiceI {
                 }
             }
         }
-
     }
 
-    public List<Certificate> getAllCertificatesByTagName(String tagName) {
+    public List<Certificate> getCertificatesByCriteria(String name,
+                                                       String description,
+                                                       String sortField,
+                                                       String sortOrder,
+                                                       String tagName) {
+        List<Certificate> certificates = new ArrayList<>();
+        if (!name.isEmpty() | !description.isEmpty() | !tagName.isEmpty()) {
+            certificates.addAll((searchByPartOfName(name)));
+            certificates.addAll((searchByPartOfDescription(description)));
+            certificates.addAll((getAllCertificatesByTagName(tagName)));
+        } else {
+            certificates.addAll((read()));
+        }
+        return (sortByAscDesc(sortField, sortOrder, certificates.stream().distinct().collect(Collectors.toList())));
+    }
+
+    private List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
+        if (!sortField.isEmpty() & !sortOrder.isEmpty()) {
+            Comparator<Certificate> comparator;
+            if (SortOptions.DATE.name().equals(sortField.toUpperCase(Locale.ROOT))) {
+                comparator = Comparator.comparing(certificate -> certificate.getCreateDate());
+            } else if (SortOptions.NAME.name().equals(sortField.toUpperCase(Locale.ROOT))) {
+                comparator = Comparator.comparing(certificate -> certificate.getName());
+            } else {
+                throw new IllegalArgumentException("Invalid sort field " + sortField);
+            }
+            if (SortOrder.ASC.name().equals(sortOrder.toUpperCase(Locale.ROOT)) | SortOrder.DESC
+                    .name().equals(sortOrder.toUpperCase(Locale.ROOT))) {
+                int sortOrderType =
+                        SortOrder.valueOf(sortOrder.toUpperCase(Locale.ROOT)).getValue();
+                listToSort = listToSort.stream().sorted((o1, o2) -> comparator.compare(o1, o2) *
+                        sortOrderType).collect(Collectors.toList());
+            } else {
+                throw new IllegalArgumentException("Invalid sort order " + sortOrder);
+            }
+        }
+        return listToSort;
+    }
+
+    List<Certificate> getAllCertificatesByTagName(String tagName) {
         List<Long> ids = tagCertificateDao.readByTag(tagDao.read(tagName).getId());
         List<Certificate> certificates = new ArrayList<>();
         for (Long id : ids) {
             certificates.add(read(id));
         }
         return certificates;
-    }
-
-    public List<Certificate> getByPartOfNameOrDescription(String query) {
-        List<Certificate> certificates = searchByPartOfDescription(query);
-        certificates.addAll(searchByPartOfName(query));
-        certificates = certificates.stream().distinct().collect(Collectors.toList());
-        for (Certificate certificate : certificates) {
-            certificate.setTags(read(certificate.getId()).getTags());
-        }
-        certificates = certificates.stream().sorted(new Comparator<Certificate>() {
-            @Override
-            public int compare(Certificate o1, Certificate o2) {
-                return (getNumberOfWordsInjections(query.split(" "), o2.getDescription())
-                        - getNumberOfWordsInjections(query.split(" "), o1.getDescription())
-                        + getNumberOfWordsInjections(query.split(" "), o2.getName())
-                        - getNumberOfWordsInjections(query.split(" "), o1.getName())
-                );
-            }
-        }).collect(Collectors.toList());
-
-        return certificates;
-    }
-
-    public List<Certificate> sortByAscDesc(String name, String sortField, String sortOrder) {
-        if (name != null & !name.isEmpty()) {
-            List<Certificate> listToSort = (getByPartOfNameOrDescription(name));
-            return (sortByAscDesc(sortField, sortOrder, listToSort));
-        } else {
-            return (sortByAscDesc(sortField, sortOrder, (read())));
-        }
-    }
-
-    public List<Certificate> getByTagOrQueryAndSort(String name,
-                                                    String sortField,
-                                                    String sortOrder,
-                                                    String tagName) {
-        List<Certificate> certificates = new ArrayList<>();
-        if (!name.isEmpty() & name != null) {
-            certificates.addAll((getByPartOfNameOrDescription(name)));
-            certificates = certificates.stream().distinct().collect(Collectors.toList());
-        }
-        if (!tagName.isEmpty() & tagName != null) {
-            certificates.addAll((getAllCertificatesByTagName(tagName)));
-            certificates = certificates.stream().distinct().collect(Collectors.toList());
-        }
-        if (certificates.isEmpty()) {
-            certificates.addAll((read()));
-        }
-        return (sortByAscDesc(sortField, sortOrder, certificates));
-    }
-
-    private List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
-        if (sortField != null & !sortField.isEmpty() & !sortOrder.isEmpty() & sortOrder != null) {
-            Comparator<Certificate> nameComparator = Comparator.comparing(certificate -> certificate.getName());
-            Comparator<Certificate> dateComparator = Comparator.comparing(certificate -> certificate.getCreateDate());
-            Comparator comparator;
-            if (SortOptions.DATE.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                comparator = dateComparator;
-            } else if (SortOptions.NAME.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                comparator = nameComparator;
-            } else {
-                throw new IllegalArgumentException("Invalid sort field " + sortField);
-            }
-            listToSort = listToSort.stream().sorted(new Comparator<Certificate>() {
-                @Override
-                public int compare(Certificate o1, Certificate o2) {
-                    return comparator.compare(o1, o2) * SortOrder.valueOf(sortOrder.toUpperCase(Locale.ROOT)).getValue();
-                }
-            }).collect(Collectors.toList());
-        }
-        return listToSort;
-
-    }
-
-    private int getNumberOfWordsInjections(String[] searchWords, String searchContainer) {
-        return Arrays.stream(searchWords)
-                .reduce(0, (a, b) -> (searchContainer.contains(b) ? 1 : 0) + a, Integer::sum);
     }
 
     List<Certificate> searchByPartOfName(String query) {
@@ -205,7 +166,6 @@ public class CertificateService implements CertificateServiceI {
                             giftCertificate.getName().toLowerCase().contains(substring.toLowerCase())))
                     .collect(Collectors.toList()));
         }
-        sortedList = sortedList.stream().distinct().collect(Collectors.toList());
         return sortedList;
     }
 
@@ -220,7 +180,6 @@ public class CertificateService implements CertificateServiceI {
                             giftCertificate.getDescription().toLowerCase().contains(substring.toLowerCase())))
                     .collect(Collectors.toList()));
         }
-        sortedList = sortedList.stream().distinct().collect(Collectors.toList());
         return sortedList;
     }
 }
