@@ -1,7 +1,7 @@
 package com.epam.esm.dao.giftCertificate;
 
 import com.epam.esm.dao.Dao;
-import com.epam.esm.model.Certificate;
+import com.epam.esm.model.entity.Certificate;
 
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package com.epam.esm.dao.giftCertificate.impl;
 
-import com.epam.esm.model.Certificate;
+import com.epam.esm.model.entity.Certificate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 

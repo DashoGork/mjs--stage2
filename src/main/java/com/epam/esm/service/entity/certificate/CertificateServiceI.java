@@ -1,6 +1,6 @@
 package com.epam.esm.service.entity.certificate;
 
-import com.epam.esm.model.Certificate;
+import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.service.entity.Service;
 
 import java.util.List;

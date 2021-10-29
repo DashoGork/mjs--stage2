@@ -1,13 +1,15 @@
 package com.epam.esm.mapper.certificate;
 
-import com.epam.esm.model.Certificate;
-import com.epam.esm.model.Tag;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.model.dto.TagDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class CertificateDtoMapperImplementation implements CertificateDtoMapper {
@@ -51,11 +53,11 @@ public class CertificateDtoMapperImplementation implements CertificateDtoMapper 
         return tag;
     }
 
-    protected List<Tag> tagDtoListToTagList(List<TagDto> list) {
+    protected Set<Tag> tagDtoListToTagList(Set<TagDto> list) {
         if (list == null) {
             return null;
         }
-        List<Tag> list1 = new ArrayList<Tag>(list.size());
+        Set<Tag> list1 = new HashSet<>(list.size());
         for (TagDto tagDto : list) {
             list1.add(tagDtoToTag(tagDto));
         }
@@ -72,11 +74,11 @@ public class CertificateDtoMapperImplementation implements CertificateDtoMapper 
         return tagDto;
     }
 
-    protected List<TagDto> tagListToTagDtoList(List<Tag> list) {
+    protected Set<TagDto> tagListToTagDtoList(Set<Tag> list) {
         if (list == null) {
             return null;
         }
-        List<TagDto> list1 = new ArrayList<TagDto>(list.size());
+        Set<TagDto> list1 = new HashSet<>(list.size());
         for (Tag tag : list) {
             list1.add(tagToTagDto(tag));
         }

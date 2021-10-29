@@ -2,7 +2,7 @@ package com.epam.esm.service.dto.certificate;
 
 import com.epam.esm.mapper.certificate.CertificateDtoMapper;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
-import com.epam.esm.model.Certificate;
+import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.service.entity.certificate.CertificateService;
 import com.epam.esm.service.entity.certificate.CertificateServiceI;

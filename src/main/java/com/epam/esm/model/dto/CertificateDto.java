@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -15,7 +16,7 @@ public class CertificateDto extends BaseEntityDto {
     private String name;
     private int price;
     private int duration;
-    private List<TagDto> tags;
+    private Set<TagDto> tags;
 
     public void setPrice(int price) {
         if (price > -1) {

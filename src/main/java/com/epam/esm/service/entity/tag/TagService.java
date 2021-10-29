@@ -1,13 +1,14 @@
 package com.epam.esm.service.entity.tag;
 
 import com.epam.esm.dao.tag.TagDao;
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
-import com.epam.esm.model.Tag;
+import com.epam.esm.exceptions.TagNotFoundException;
+import com.epam.esm.model.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -15,43 +16,51 @@ public class TagService implements TagServiceI {
     private TagDao tagDao;
 
     @Autowired
-    public TagService(TagDaoImplementation tagDao) {
+    public TagService(TagDao tagDao) {
         this.tagDao = tagDao;
     }
 
-    @Override
     public Tag create(Tag tag) {
-        tagDao.update(tag.getName());
-        return tagDao.read(tag.getName());
+        try {
+            return read(tag.getName());
+        } catch (TagNotFoundException e) {
+            return tagDao.save(tag);
+        }
     }
 
-    @Override
     public void delete(Tag tag) {
-        tagDao.delete(tag.getId());
+        tagDao.delete(tag);
     }
 
-    @Override
     public List<Tag> read() {
-        return tagDao.read();
+        return tagDao.findAll();
     }
 
-    @Override
     public Tag read(String name) {
         if (name != null) {
-            return tagDao.read(name);
+            Optional<Tag> tag = Optional.ofNullable(tagDao.findTagByName(name));
+            if (!tag.isPresent()) {
+                throw new TagNotFoundException("Tag wasn't" +
+                        " found. name =" + name);
+            } else {
+                return tag.get();
+            }
         } else {
             throw new InvalidParameterException("name is null");
         }
     }
 
-    @Override
     public Tag read(long id) {
         if (id > 0) {
-            return tagDao.read(id);
+            Optional<Tag> tag = tagDao.findById(id);
+            if (!tag.isPresent()) {
+                throw new TagNotFoundException("Tag wasn't" +
+                        " found. id =" + id);
+            } else {
+                return tag.get();
+            }
         } else {
             throw new InvalidParameterException("invalid id. id = " + id);
         }
     }
-
-
 }

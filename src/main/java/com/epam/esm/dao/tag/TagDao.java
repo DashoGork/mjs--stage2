@@ -1,9 +1,18 @@
 package com.epam.esm.dao.tag;
 
-import com.epam.esm.dao.Dao;
-import com.epam.esm.model.Tag;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-public interface TagDao extends Dao<Tag> {
-    Tag read(String name);
-    void update(String name);
+import java.util.List;
+
+@Repository
+public interface TagDao extends JpaRepository<Tag, Long> {
+    @Query(value = "select t from Tag t where t.name=?1")
+    Tag findTagByName(String name);
+
+    List<Tag> findTagsByCertificates(Certificate certificate);
+
 }

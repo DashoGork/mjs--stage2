@@ -3,7 +3,7 @@ package com.epam.esm.dao.giftCertificate.impl;
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
-import com.epam.esm.model.Certificate;
+import com.epam.esm.model.entity.Certificate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

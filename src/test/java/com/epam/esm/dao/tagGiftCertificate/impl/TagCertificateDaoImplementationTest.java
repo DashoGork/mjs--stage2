@@ -1,7 +1,7 @@
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
-import com.epam.esm.model.Certificate;
-import com.epam.esm.model.Tag;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
