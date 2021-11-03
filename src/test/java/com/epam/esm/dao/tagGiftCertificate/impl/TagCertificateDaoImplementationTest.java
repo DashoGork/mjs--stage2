@@ -1,3 +1,4 @@
+/*
 package com.epam.esm.dao.tagGiftCertificate.impl;
 
 import com.epam.esm.model.entity.Certificate;
@@ -63,4 +64,4 @@ public class TagCertificateDaoImplementationTest {
         List<Long> listOfTags = dao.readByCertificate(1);
         assertTrue(listOfTags.isEmpty());
     }
-}
+}*/

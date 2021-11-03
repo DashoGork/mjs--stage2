@@ -23,7 +23,7 @@ public class User extends BaseEntity {
     @JoinTable(
             name = "order", schema = "mjs2",
             joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "certificate_id")}
+            inverseJoinColumns = {@JoinColumn(name = "id")}
     )
-    private List<Certificate> orders;
+    private List<Order> orders;
 }

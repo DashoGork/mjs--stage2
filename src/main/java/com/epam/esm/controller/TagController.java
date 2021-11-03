@@ -4,11 +4,16 @@ import com.epam.esm.model.dto.TagDto;
 import com.epam.esm.service.dto.tag.TagDtoService;
 import com.epam.esm.service.dto.tag.TagDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 
 @RestController
@@ -22,12 +27,24 @@ public class TagController {
     }
 
     @GetMapping
-    public List<TagDto> getAll() {
-        return tagService.read();
+    public CollectionModel<TagDto> getAll(@RequestParam("page") int page,
+                                          @RequestParam("size") int size) {
+        final List<TagDto> tags = tagService.findPaginated(page, size);
+        for (final TagDto tag : tags) {
+            String customerId = String.valueOf(tag.getId());
+            Link selfLink = linkTo(TagController.class).slash(customerId)
+                    .withSelfRel();
+            tag.add(selfLink);
+        }
+        Link link =
+                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(page, size)).withSelfRel();
+        CollectionModel<TagDto> result = CollectionModel.of(tags
+                , link);
+        return result;
     }
 
     @GetMapping("/{id}")
-    public TagDto getById(@PathVariable("id") int id) {
+    public TagDto getById(@PathVariable("id") long id) {
         return tagService.read(id);
     }
 

@@ -1,19 +1,23 @@
 package com.epam.esm.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "tag", schema = "mjs2")
 public class Tag extends BaseEntity {
-    @ManyToMany(mappedBy = "tags", cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    private String name;
+    @ManyToMany(mappedBy = "tags",
+            cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+                    CascadeType.MERGE}, fetch = FetchType.LAZY
+    )
+    @JsonIgnoreProperties("tags")
     private Set<Certificate> certificates = new HashSet<>();
 
     public Set<Certificate> getCertificates() {
@@ -36,5 +40,13 @@ public class Tag extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), certificates);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

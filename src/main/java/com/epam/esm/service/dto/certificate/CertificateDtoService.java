@@ -9,6 +9,7 @@ import com.epam.esm.service.entity.certificate.CertificateServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,5 +65,20 @@ public class CertificateDtoService implements CertificateDtoServiceI {
         return certificateList.stream()
                 .map((certificate -> mapper.certificateToCertificateDto(certificate)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CertificateDto> findPaginated(String name, String description,
+                                              String sortField, String sortOrder,
+                                              String tagName, int page, int size) {
+        List<CertificateDto> certificates = getByTagOrQueryAndSort(name,
+                description, sortField, sortOrder, tagName);
+        List<CertificateDto> paginatedCertificates = new ArrayList<>();
+        try {
+            paginatedCertificates =
+                    certificates.subList(page * size, page * size + size);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        return paginatedCertificates;
     }
 }

@@ -22,15 +22,20 @@ public class CertificateController {
         this.service = service;
     }
 
+
     @GetMapping
     public List<CertificateDto> showAll(
             @RequestParam(defaultValue = "", required = false) String name,
             @RequestParam(defaultValue = "", required = false) String description,
             @RequestParam(defaultValue = "", required = false) String sortField,
             @RequestParam(defaultValue = "", required = false) String sortOrder,
-            @RequestParam(defaultValue = "", required = false) String tagName) {
-        return service.getByTagOrQueryAndSort(name, description, sortField,
-                sortOrder, tagName);
+            @RequestParam(defaultValue = "", required = false) String tagName,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
+    ) {
+        return
+                service.findPaginated(name, description, sortField,
+                        sortOrder, tagName, page, size);
     }
 
 

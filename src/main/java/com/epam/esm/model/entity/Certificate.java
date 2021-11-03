@@ -1,5 +1,6 @@
 package com.epam.esm.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.*;
 @Entity
 @Table(name = "gift_certificate", schema = "mjs2")
 public class Certificate extends BaseEntity {
+    private String name;
     private String description;
     private int price;
     private int duration;
@@ -29,6 +31,7 @@ public class Certificate extends BaseEntity {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
+    @JsonIgnoreProperties("certificates")
     private Set<Tag> tags = new HashSet<>();
 
     public void addTag(Tag tag) {
@@ -40,7 +43,7 @@ public class Certificate extends BaseEntity {
                        int duration, Date createDate, Date lastUpdateDate,
                        Set<Tag> tags) {
         super();
-        super.setName(name);
+        this.setName(name);
         this.description = description;
         this.price = price;
         this.duration = duration;
@@ -55,11 +58,11 @@ public class Certificate extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Certificate that = (Certificate) o;
-        return price == that.price && duration == that.duration && Objects.equals(description, that.description) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate);
+        return price == that.price && duration == that.duration && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), description, price, duration, createDate, lastUpdateDate);
+        return Objects.hash(super.hashCode(), name, description, price, duration, createDate, lastUpdateDate);
     }
 }

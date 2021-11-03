@@ -1,31 +1,28 @@
 package com.epam.esm.controller;
 
-
-import com.epam.esm.dao.order.OrderDao;
-import com.epam.esm.model.dto.TagDto;
-import com.epam.esm.model.entity.Order;
-import com.epam.esm.service.dto.tag.TagDtoService;
-import com.epam.esm.service.dto.tag.TagDtoServiceI;
+import com.epam.esm.model.dto.OrderDto;
+import com.epam.esm.service.dto.order.OrderDtoService;
+import com.epam.esm.service.dto.order.OrderDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-    private OrderDao dao;
+    private final OrderDtoServiceI orderService;
 
     @Autowired
-    public OrderController(OrderDao dao) {
-        this.dao = dao;
+    public OrderController(OrderDtoService orderService) {
+        this.orderService = orderService;
     }
 
-    @GetMapping
-    public List<Order> getAll() {
-        return dao.findAll();
+    @PostMapping
+    public OrderDto create(@RequestBody OrderDto order) {
+        return orderService.create(order);
     }
 
 }

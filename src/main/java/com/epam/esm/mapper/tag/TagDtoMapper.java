@@ -7,6 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface TagDtoMapper {
     Tag tagDtoToTag(TagDto tagDto);
-
     TagDto tagToTagDto(Tag tag);
 }

@@ -1,17 +1,14 @@
 package com.epam.esm.service.entity.certificate;
 
-import com.epam.esm.dao.giftCertificate.Certificate2Dao;
-import com.epam.esm.dao.giftCertificate.GiftCertificateDao;
-import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
+import com.epam.esm.dao.giftCertificate.CertificateDao;
 import com.epam.esm.dao.tag.TagDao;
-import com.epam.esm.dao.tagGiftCertificate.TagCertificateDao;
-import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
 import com.epam.esm.enums.SortOptions;
 import com.epam.esm.enums.SortOrder;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapper;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapperImpl;
+import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.entity.tag.TagService;
@@ -27,55 +24,65 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class CertificateService implements CertificateServiceI {
-    private GiftCertificateDao giftCertificateDao;
     private TagDao tagDao;
-    private TagCertificateDao tagCertificateDao;
-    private Certificate2Dao dao2;
+    private CertificateDao certificateDao;
     private TagServiceI tagService;
     private CertificatePatchedMapper patchedMapper;
 
 
     @Autowired
     public CertificateService(
-            GiftCertificateDaoImplementation giftCertificate,
             TagDao tagDao,
-            TagCertificateDaoImplementation tagCertificateDao,
-            Certificate2Dao dao2,
+            CertificateDao certificateDao,
             TagService tagService,
             CertificatePatchedMapperImpl patchedMapper
     ) {
-        this.giftCertificateDao = giftCertificate;
         this.tagDao = tagDao;
-        this.tagCertificateDao = tagCertificateDao;
-        this.dao2 = dao2;
+        this.certificateDao = certificateDao;
         this.tagService = tagService;
         this.patchedMapper = patchedMapper;
+    }
+
+    private Certificate read(String name) {
+        if (name != null) {
+            Optional<Certificate> certificate =
+                    Optional.ofNullable(certificateDao.findCertificateByName(name));
+            if (!certificate.isPresent()) {
+                throw new GiftCertificateNotFoundException("Certificate " +
+                        "wasn't" +
+                        " found. name =" + name);
+            } else {
+                return certificate.get();
+            }
+        } else {
+            throw new InvalidParameterException("name is null");
+        }
     }
 
     public Certificate create(Certificate certificate) {
         Date dateOfCreation = new Date();
         try {
-            giftCertificateDao.read(certificate.getName());
+            read(certificate.getName());
         } catch (GiftCertificateNotFoundException e) {
             certificate.setLastUpdateDate(dateOfCreation);
             certificate.setCreateDate(dateOfCreation);
             Set<Tag> tags = certificate.getTags().stream()
                     .map((tag -> tagService.create(tag))).collect(Collectors.toSet());
             certificate.setTags(tags);
-            return dao2.save(certificate);
+            return certificateDao.save(certificate);
         }
-        return giftCertificateDao.read(certificate.getName());
+        return read(certificate.getName());
     }
 
     @Override
     public List<Certificate> read() {
-        return dao2.findAll();
+        return certificateDao.findAll();
     }
 
     @Override
     public Certificate read(long id) {
         if (id > 0) {
-            Optional<Certificate> certificate = dao2.findById(id);
+            Optional<Certificate> certificate = certificateDao.findById(id);
             if (!certificate.isPresent()) {
                 throw new TagNotFoundException("Tag wasn't" +
                         " found. id =" + id);
@@ -88,7 +95,7 @@ public class CertificateService implements CertificateServiceI {
     }
 
     public void delete(Certificate certificate) {
-        dao2.delete(certificate);
+        certificateDao.delete(certificate);
     }
 
     public void patch(long id, Certificate patchedCertificate) {
@@ -102,7 +109,7 @@ public class CertificateService implements CertificateServiceI {
                 }
             }
         }
-        dao2.saveAndFlush(patchedMapper.patchedToCertificate(patchedCertificate, oldCertificate));
+        certificateDao.saveAndFlush(patchedMapper.patchedToCertificate(patchedCertificate, oldCertificate));
     }
 
     public List<Certificate> getCertificatesByCriteria(String name,
@@ -145,12 +152,16 @@ public class CertificateService implements CertificateServiceI {
     }
 
     List<Certificate> getAllCertificatesByTagName(String tagName) {
-        Tag tag = tagDao.findTagByName(tagName);
-        List<Certificate> certificates = new ArrayList<>();
-        if (tag != null) {
-            certificates = dao2.getCertificatesByTags(tag);
+        String[] tagsNames = tagName.split(",");
+        Set<Tag> tags = new HashSet<>();
+        for (String name : tagsNames) {
+            Tag tag = tagDao.findTagByName(name.trim());
+            if (tag != null) {
+                tags.add(tag);
+            }
         }
-        return certificates;
+        List<Certificate> certificates = certificateDao.findAll();
+        return certificates.stream().filter((certificate -> certificate.getTags().containsAll(tags))).collect(Collectors.toList());
     }
 
     List<Certificate> searchByPartOfName(String query) {

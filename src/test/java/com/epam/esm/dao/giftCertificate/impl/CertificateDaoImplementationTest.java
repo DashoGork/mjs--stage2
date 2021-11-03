@@ -1,3 +1,4 @@
+/*
 package com.epam.esm.dao.giftCertificate.impl;
 
 import com.epam.esm.model.entity.Certificate;
@@ -62,4 +63,4 @@ public class CertificateDaoImplementationTest {
         List<Certificate> updatedList = dao.read();
         assertTrue(updatedList.size() == 2);
     }
-}
+}*/
