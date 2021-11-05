@@ -31,21 +31,35 @@ public class TagController {
                                           @RequestParam("size") int size) {
         final List<TagDto> tags = tagService.findPaginated(page, size);
         for (final TagDto tag : tags) {
-            String customerId = String.valueOf(tag.getId());
-            Link selfLink = linkTo(TagController.class).slash(customerId)
-                    .withSelfRel();
-            tag.add(selfLink);
+            String tagId = String.valueOf(tag.getId());
+            Link selfLink = linkTo(TagController.class).slash(tagId)
+                    .withRel("GET by id");
+            Link deleteLink = linkTo(TagController.class).slash(tagId)
+                    .withRel("DELETE by id");
+            tag.add(selfLink, deleteLink);
         }
         Link link =
                 linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(page, size)).withSelfRel();
+        Link createLink = linkTo(TagController.class)
+                .withRel("POST create");
         CollectionModel<TagDto> result = CollectionModel.of(tags
-                , link);
+                , link, createLink);
         return result;
     }
 
     @GetMapping("/{id}")
     public TagDto getById(@PathVariable("id") long id) {
-        return tagService.read(id);
+        TagDto tagDto = tagService.read(id);
+        Link selfLink = linkTo(TagController.class).slash(tagDto.getId())
+                .withRel("GET by id");
+        Link deleteLink = linkTo(TagController.class).slash(tagDto.getId())
+                .withRel("DELETE by id");
+        Link link =
+                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(1, 1)).withRel("GET all");
+        Link createLink = linkTo(TagController.class)
+                .withRel("POST create");
+        tagDto.add(selfLink, deleteLink, link, createLink);
+        return tagDto;
     }
 
     @DeleteMapping("/{id}")
@@ -59,6 +73,16 @@ public class TagController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto create(@Validated @RequestBody TagDto tag) {
-        return tagService.create(tag);
+        TagDto tagDto = tagService.create(tag);
+        Link selfLink = linkTo(TagController.class).slash(tagDto.getId())
+                .withRel("GET by id");
+        Link deleteLink = linkTo(TagController.class).slash(tagDto.getId())
+                .withRel("DELETE by id");
+        Link link =
+                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(1, 1)).withRel("GET all");
+        Link createLink = linkTo(TagController.class)
+                .withRel("POST create");
+        tagDto.add(selfLink, deleteLink, link, createLink);
+        return tagDto;
     }
 }

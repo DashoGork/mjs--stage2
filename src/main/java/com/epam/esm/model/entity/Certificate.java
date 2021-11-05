@@ -1,5 +1,8 @@
 package com.epam.esm.model.entity;
 
+import com.epam.esm.model.audit.AuditListener;
+import com.epam.esm.model.audit.AuditObject;
+import com.epam.esm.model.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +20,8 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "gift_certificate", schema = "mjs2")
-public class Certificate extends BaseEntity {
+@EntityListeners(AuditListener.class)
+public class Certificate extends BaseEntity implements Auditable {
     private String name;
     private String description;
     private int price;
@@ -38,6 +42,9 @@ public class Certificate extends BaseEntity {
         tags.add(tag);
         tag.getCertificates().add(this);
     }
+
+    @Transient
+    private AuditObject auditObject;
 
     public Certificate(String name, String description, int price,
                        int duration, Date createDate, Date lastUpdateDate,
@@ -64,5 +71,17 @@ public class Certificate extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), name, description, price, duration, createDate, lastUpdateDate);
+    }
+
+    @Override
+    public AuditObject getAudit() {
+        return auditObject;
+    }
+
+    @Override
+    public void setAudit(AuditObject audit) {
+        audit.setTimestamp(new Date());
+        audit.setEntityId(getId());
+        audit.setTypeOfEntity("Certificate");
     }
 }

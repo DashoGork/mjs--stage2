@@ -4,11 +4,16 @@ import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.service.dto.certificate.CertificateDtoService;
 import com.epam.esm.service.dto.certificate.CertificateDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 
 @RestController
@@ -16,6 +21,20 @@ import java.util.List;
 public class CertificateController {
 
     private CertificateDtoServiceI service;
+    private final Link createLink =
+            linkTo((CertificateController.class)).withRel("POST create");
+    private final Link deleteLink =
+            linkTo(CertificateController.class).slash("id").withRel(
+                    "DELETE by id");
+    private final Link patchLink =
+            linkTo((CertificateController.class)).slash("id").withRel(
+                    "PATCH by id");
+    private final Link getByIdLink =
+            linkTo((CertificateController.class)).slash("id").withRel(
+                    "GET by id");
+    private final Link getAllLink =
+            linkTo((CertificateController.class)).withRel(
+                    "GET all");
 
     @Autowired
     public CertificateController(CertificateDtoService service) {
@@ -24,7 +43,7 @@ public class CertificateController {
 
 
     @GetMapping
-    public List<CertificateDto> showAll(
+    public CollectionModel<CertificateDto> getAll(
             @RequestParam(defaultValue = "", required = false) String name,
             @RequestParam(defaultValue = "", required = false) String description,
             @RequestParam(defaultValue = "", required = false) String sortField,
@@ -33,21 +52,41 @@ public class CertificateController {
             @RequestParam("page") int page,
             @RequestParam("size") int size
     ) {
-        return
+        List<CertificateDto> certificates =
                 service.findPaginated(name, description, sortField,
                         sortOrder, tagName, page, size);
+        certificates.stream().forEach((certificateDto -> certificateDto.getTags()
+                .stream().forEach(tagDto
+                        -> tagDto.add(linkTo(TagController.class).slash(tagDto.getId()).withRel("GET one"),
+                        linkTo(TagController.class).withRel("GET all"),
+                        linkTo(TagController.class).slash(tagDto.getId()).withRel("DELETE by id"),
+                        linkTo(TagController.class).withRel("POST create")))));
+        Link selfLink =
+                linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                        .getAll(name, description, sortField, sortOrder, tagName, page, size)).withSelfRel();
+
+        CollectionModel<CertificateDto> result =
+                CollectionModel.of(certificates, selfLink);
+        result.add(createLink, deleteLink, patchLink, getByIdLink);
+        return result;
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CertificateDto createNew(@Validated @RequestBody CertificateDto certificate) {
-        return service.create(certificate);
+    public CertificateDto create(@Validated @RequestBody CertificateDto certificate) {
+        CertificateDto certificateDto = service.create(certificate);
+        Link link =
+                linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class).getById(certificate.getId())).withSelfRel();
+        certificateDto.add(link, deleteLink, patchLink, getByIdLink, getAllLink);
+        return certificateDto;
     }
 
     @GetMapping("/{id}")
-    public CertificateDto show(@PathVariable("id") int id) {
-        return service.read(id);
+    public CertificateDto getById(@PathVariable("id") long id) {
+        CertificateDto certificateDto = service.read(id);
+        certificateDto.add(getAllLink, deleteLink, createLink, patchLink);
+        return certificateDto;
     }
 
     @PatchMapping("/{id}")
@@ -55,7 +94,9 @@ public class CertificateController {
     public CertificateDto update(@PathVariable Long id,
                                  @Validated @RequestBody CertificateDto patchedCertificate) {
         service.patch(id, patchedCertificate);
-        return service.read(id);
+        CertificateDto certificateDto = service.read(id);
+        certificateDto.add(getAllLink, deleteLink, createLink, patchLink);
+        return certificateDto;
     }
 
     @DeleteMapping("/{id}")

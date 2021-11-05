@@ -1,5 +1,8 @@
 package com.epam.esm.model.entity;
 
+import com.epam.esm.model.audit.AuditListener;
+import com.epam.esm.model.audit.AuditObject;
+import com.epam.esm.model.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +18,8 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "order", schema = "mjs2")
-public class Order extends BaseEntity {
+@EntityListeners(AuditListener.class)
+public class Order extends BaseEntity implements Auditable {
 
     @Column(name = "user_id")
     private long userId;
@@ -32,6 +36,9 @@ public class Order extends BaseEntity {
     private Set<Certificate> certificates = new HashSet<>();
     @Column(name = "price")
     private long price;
+
+    @Transient
+    private AuditObject auditObject;
 
     public void setPrice(long price) {
         if (price > 0) {
@@ -57,5 +64,17 @@ public class Order extends BaseEntity {
 
     public void setCertificates(Set<Certificate> certificates) {
         this.certificates = certificates;
+    }
+
+    @Override
+    public AuditObject getAudit() {
+        return auditObject;
+    }
+
+    @Override
+    public void setAudit(AuditObject audit) {
+        audit.setTimestamp(new Date());
+        audit.setEntityId(getId());
+        audit.setTypeOfEntity("Order");
     }
 }

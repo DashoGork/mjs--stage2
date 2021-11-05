@@ -1,3 +1,4 @@
+
 package com.epam.esm.service.dto.order;
 
 import com.epam.esm.mapper.order.OrderDtoMapper;
@@ -15,7 +16,8 @@ public class OrderDtoService implements OrderDtoServiceI {
     private OrderServiceI service;
 
     @Autowired
-    public OrderDtoService(OrderDtoMapperImpl mapper, OrderService service) {
+    public OrderDtoService(OrderDtoMapperImpl mapper,
+                           OrderService service) {
         this.mapper = mapper;
         this.service = service;
     }
@@ -26,3 +28,4 @@ public class OrderDtoService implements OrderDtoServiceI {
         return mapper.orderToOrderDto(service.addOrder(order));
     }
 }
+

@@ -3,11 +3,17 @@ package com.epam.esm.controller;
 import com.epam.esm.model.dto.OrderDto;
 import com.epam.esm.service.dto.order.OrderDtoService;
 import com.epam.esm.service.dto.order.OrderDtoServiceI;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 
 @RestController
@@ -22,7 +28,11 @@ public class OrderController {
 
     @PostMapping
     public OrderDto create(@RequestBody OrderDto order) {
-        return orderService.create(order);
+        OrderDto createdOrder = orderService.create(order);
+        Link selfLink = linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+                .getUserWithOrders(order.getUserId())).withSelfRel();
+        order.add(selfLink);
+        return createdOrder;
     }
 
 }

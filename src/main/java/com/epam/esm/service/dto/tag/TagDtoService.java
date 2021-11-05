@@ -53,14 +53,7 @@ public class TagDtoService implements TagDtoServiceI {
 
     @Override
     public List<TagDto> findPaginated(int page, int size) {
-        List<TagDto> allTags = read();
-        List<TagDto> paginatedTags = new ArrayList<>();
-        try {
-            paginatedTags = allTags
-                    .subList(page * size, page * size + size);
-        } catch (IndexOutOfBoundsException e) {
-        }
-        return paginatedTags;
+        return tagListToTagDtoList(tagService.findPaginated(size, page));
     }
 
     private List<TagDto> tagListToTagDtoList(List<Tag> tagList) {

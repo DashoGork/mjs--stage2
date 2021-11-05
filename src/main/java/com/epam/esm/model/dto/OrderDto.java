@@ -16,5 +16,5 @@ public class OrderDto extends BaseEntityDto {
     private long price;
     private long userId;
     private Date timeOfPurchase;
-    private Set<Certificate> certificates = new HashSet<>();
+    private Set<CertificateDto> certificates = new HashSet<>();
 }

@@ -5,6 +5,7 @@ import com.epam.esm.dao.user.UserDao;
 import com.epam.esm.exceptions.BaseNotFoundException;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
+import com.epam.esm.service.entity.PaginationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserServiceI {
+public class UserService implements UserServiceI, PaginationService<User> {
     private UserDao userDao;
     private OrderDao orderDao;
 
@@ -44,6 +45,11 @@ public class UserService implements UserServiceI {
 
     public List<Order> readOrdersByIdUser(long id) {
         return read(id).getOrders();
+    }
+
+    @Override
+    public List<User> findPaginated(int size, int page) {
+        return paginate(read(), size, page);
     }
 
     @Override

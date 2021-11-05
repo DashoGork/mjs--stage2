@@ -8,9 +8,9 @@ import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapper;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapperImpl;
-import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.entity.Tag;
+import com.epam.esm.service.entity.PaginationService;
 import com.epam.esm.service.entity.tag.TagService;
 import com.epam.esm.service.entity.tag.TagServiceI;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class CertificateService implements CertificateServiceI {
+public class CertificateService implements CertificateServiceI, PaginationService {
     private TagDao tagDao;
     private CertificateDao certificateDao;
     private TagServiceI tagService;
@@ -126,6 +126,13 @@ public class CertificateService implements CertificateServiceI {
             certificates.addAll((read()));
         }
         return (sortByAscDesc(sortField, sortOrder, certificates.stream().distinct().collect(Collectors.toList())));
+    }
+
+    @Override
+    public List<Certificate> findPaginated(String name, String description, String sortField, String sortOrder, String tagName, int page, int size) {
+        List<Certificate> certificates = getCertificatesByCriteria(name,
+                description, sortField, sortOrder, tagName);
+        return paginate(certificates, size, page);
     }
 
     private List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {

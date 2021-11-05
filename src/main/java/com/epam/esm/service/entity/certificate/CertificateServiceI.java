@@ -14,5 +14,8 @@ public interface CertificateServiceI extends Service<Certificate> {
                                                 String sortField, String sortOrder,
                                                 String tagName);
 
-
+    List<Certificate> findPaginated(String name, String description,
+                                    String sortField, String sortOrder,
+                                    String tagName,
+                                    int page, int size);
 }

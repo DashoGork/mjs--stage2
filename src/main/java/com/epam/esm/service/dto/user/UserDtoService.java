@@ -1,3 +1,4 @@
+
 package com.epam.esm.service.dto.user;
 
 import com.epam.esm.mapper.order.OrderDtoMapper;
@@ -5,7 +6,6 @@ import com.epam.esm.mapper.order.OrderDtoMapperImpl;
 import com.epam.esm.mapper.user.UserDtoMapper;
 import com.epam.esm.mapper.user.UserDtoMapperImpl;
 import com.epam.esm.model.dto.OrderDto;
-import com.epam.esm.model.dto.TagDto;
 import com.epam.esm.model.dto.UserDto;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
@@ -14,7 +14,6 @@ import com.epam.esm.service.entity.user.UserServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,8 @@ public class UserDtoService implements UserDtoServiceI {
     @Autowired
     public UserDtoService(UserDtoMapperImpl userDtoMapper,
                           UserService service,
-                          OrderDtoMapperImpl orderDtoMapper) {
+                          OrderDtoMapperImpl orderDtoMapper
+    ) {
         this.userDtoMapper = userDtoMapper;
         this.service = service;
         this.orderDtoMapper = orderDtoMapper;
@@ -55,14 +55,7 @@ public class UserDtoService implements UserDtoServiceI {
 
     @Override
     public List<UserDto> findPaginated(int page, int size) {
-        List<UserDto> all = read();
-        List<UserDto> paginated = new ArrayList<>();
-        try {
-            paginated = all
-                    .subList(page * size, page * size + size);
-        } catch (IndexOutOfBoundsException e) {
-        }
-        return paginated;
+        return userListToUserDtoList(service.findPaginated(size, page));
     }
 
     private List<UserDto> userListToUserDtoList(List<User> userList) {
@@ -77,3 +70,4 @@ public class UserDtoService implements UserDtoServiceI {
                 .collect(Collectors.toList());
     }
 }
+

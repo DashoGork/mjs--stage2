@@ -1,5 +1,6 @@
 package com.epam.esm.model.entity;
 
+import com.epam.esm.model.audit.AuditListener;
 import lombok.*;
 import org.springframework.context.annotation.Primary;
 
@@ -16,8 +17,6 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-
-
 
     @Override
     public boolean equals(Object o) {

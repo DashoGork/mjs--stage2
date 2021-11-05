@@ -2,14 +2,13 @@ package com.epam.esm.service.dto.certificate;
 
 import com.epam.esm.mapper.certificate.CertificateDtoMapper;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
-import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.dto.CertificateDto;
+import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.service.entity.certificate.CertificateService;
 import com.epam.esm.service.entity.certificate.CertificateServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,14 +70,9 @@ public class CertificateDtoService implements CertificateDtoServiceI {
     public List<CertificateDto> findPaginated(String name, String description,
                                               String sortField, String sortOrder,
                                               String tagName, int page, int size) {
-        List<CertificateDto> certificates = getByTagOrQueryAndSort(name,
-                description, sortField, sortOrder, tagName);
-        List<CertificateDto> paginatedCertificates = new ArrayList<>();
-        try {
-            paginatedCertificates =
-                    certificates.subList(page * size, page * size + size);
-        } catch (IndexOutOfBoundsException e) {
-        }
-        return paginatedCertificates;
+        List<Certificate> certificates = service.findPaginated(name,
+                description, sortField, sortOrder, tagName, page, size);
+
+        return certificateListToCertificateDtoList(certificates);
     }
 }

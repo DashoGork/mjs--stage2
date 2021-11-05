@@ -1,9 +1,13 @@
 package com.epam.esm.model.entity;
 
+import com.epam.esm.model.audit.AuditListener;
+import com.epam.esm.model.audit.AuditObject;
+import com.epam.esm.model.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -11,7 +15,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tag", schema = "mjs2")
-public class Tag extends BaseEntity {
+@EntityListeners(AuditListener.class)
+public class Tag extends BaseEntity implements Auditable {
     private String name;
     @ManyToMany(mappedBy = "tags",
             cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
@@ -19,6 +24,9 @@ public class Tag extends BaseEntity {
     )
     @JsonIgnoreProperties("tags")
     private Set<Certificate> certificates = new HashSet<>();
+
+    @Transient
+    private AuditObject auditObject;
 
     public Set<Certificate> getCertificates() {
         return certificates;
@@ -48,5 +56,17 @@ public class Tag extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public AuditObject getAudit() {
+        return auditObject;
+    }
+
+    @Override
+    public void setAudit(AuditObject audit) {
+        audit.setTimestamp(new Date());
+        audit.setEntityId(getId());
+        audit.setTypeOfEntity("Tag");
     }
 }
