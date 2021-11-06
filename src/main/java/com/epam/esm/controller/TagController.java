@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.controller.hateoas.LinkAdder;
 import com.epam.esm.model.dto.TagDto;
 import com.epam.esm.service.dto.tag.TagDtoService;
 import com.epam.esm.service.dto.tag.TagDtoServiceI;
@@ -18,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequestMapping("/tags")
-public class TagController {
+public class TagController implements LinkAdder {
     private final TagDtoServiceI tagService;
 
     @Autowired
@@ -31,34 +32,19 @@ public class TagController {
                                           @RequestParam("size") int size) {
         final List<TagDto> tags = tagService.findPaginated(page, size);
         for (final TagDto tag : tags) {
-            String tagId = String.valueOf(tag.getId());
-            Link selfLink = linkTo(TagController.class).slash(tagId)
-                    .withRel("GET by id");
-            Link deleteLink = linkTo(TagController.class).slash(tagId)
-                    .withRel("DELETE by id");
-            tag.add(selfLink, deleteLink);
+            addLinks(tag);
         }
         Link link =
                 linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(page, size)).withSelfRel();
-        Link createLink = linkTo(TagController.class)
-                .withRel("POST create");
         CollectionModel<TagDto> result = CollectionModel.of(tags
-                , link, createLink);
+                , link);
         return result;
     }
 
     @GetMapping("/{id}")
     public TagDto getById(@PathVariable("id") long id) {
         TagDto tagDto = tagService.read(id);
-        Link selfLink = linkTo(TagController.class).slash(tagDto.getId())
-                .withRel("GET by id");
-        Link deleteLink = linkTo(TagController.class).slash(tagDto.getId())
-                .withRel("DELETE by id");
-        Link link =
-                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(1, 1)).withRel("GET all");
-        Link createLink = linkTo(TagController.class)
-                .withRel("POST create");
-        tagDto.add(selfLink, deleteLink, link, createLink);
+        addLinks(tagDto);
         return tagDto;
     }
 
@@ -74,15 +60,7 @@ public class TagController {
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto create(@Validated @RequestBody TagDto tag) {
         TagDto tagDto = tagService.create(tag);
-        Link selfLink = linkTo(TagController.class).slash(tagDto.getId())
-                .withRel("GET by id");
-        Link deleteLink = linkTo(TagController.class).slash(tagDto.getId())
-                .withRel("DELETE by id");
-        Link link =
-                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(1, 1)).withRel("GET all");
-        Link createLink = linkTo(TagController.class)
-                .withRel("POST create");
-        tagDto.add(selfLink, deleteLink, link, createLink);
+        addLinks(tagDto);
         return tagDto;
     }
 }

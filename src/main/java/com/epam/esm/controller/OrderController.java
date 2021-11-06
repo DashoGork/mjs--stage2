@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.controller.hateoas.LinkAdder;
 import com.epam.esm.model.dto.OrderDto;
 import com.epam.esm.service.dto.order.OrderDtoService;
 import com.epam.esm.service.dto.order.OrderDtoServiceI;
@@ -18,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+public class OrderController implements LinkAdder {
     private final OrderDtoServiceI orderService;
 
     @Autowired
@@ -29,9 +30,7 @@ public class OrderController {
     @PostMapping
     public OrderDto create(@RequestBody OrderDto order) {
         OrderDto createdOrder = orderService.create(order);
-        Link selfLink = linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                .getUserWithOrders(order.getUserId())).withSelfRel();
-        order.add(selfLink);
+        addLinks(createdOrder);
         return createdOrder;
     }
 

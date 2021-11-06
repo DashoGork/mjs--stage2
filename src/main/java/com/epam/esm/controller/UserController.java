@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.controller.hateoas.LinkAdder;
 import com.epam.esm.model.dto.OrderDto;
 import com.epam.esm.model.dto.UserDto;
 import com.epam.esm.service.dto.user.UserDtoService;
@@ -17,7 +18,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements LinkAdder {
 
     private UserDtoServiceI service;
     private final Link bestUserLink =
@@ -34,8 +35,6 @@ public class UserController {
                                             @RequestParam("size") int size) {
         final List<UserDto> users = service.findPaginated(page, size);
         users.stream().forEach((userDto -> setLinks(userDto)));
-        users.stream().forEach((userDto -> userDto.getOrders().stream().forEach((orderDto -> setOrderLinks(orderDto)))));
-        users.stream().forEach((userDto -> userDto.getOrders().stream().forEach((orderDto -> setCertificateLinks(orderDto)))));
         Link link =
                 linkTo(WebMvcLinkBuilder.methodOn(UserController.class).showAll(page, size)).withSelfRel();
         CollectionModel<UserDto> result = CollectionModel.of(users
@@ -47,10 +46,8 @@ public class UserController {
     public UserDto getUserWithOrders(
             @PathVariable("id") long id) {
         UserDto userDto = service.read(id);
-        userDto = setLinks(userDto);
-        userDto.getOrders().stream().forEach((orderDto -> setOrderLinks(orderDto)));
-        userDto.getOrders().stream().forEach((orderDto -> setCertificateLinks(orderDto)));
-        return setLinks(userDto);
+        setLinks(userDto);
+        return userDto;
     }
 
     @GetMapping("/{id}/orders")
@@ -58,7 +55,6 @@ public class UserController {
             @PathVariable("id") long id) {
         List<OrderDto> orders = service.readOrdersByUserId(id);
         orders.stream().forEach((orderDto -> setOrderLinks(orderDto)));
-        orders.stream().forEach((orderDto -> setCertificateLinks(orderDto)));
         return orders;
     }
 
@@ -66,43 +62,22 @@ public class UserController {
     public UserDto getBest() {
         UserDto userDto = service.bestUser();
         setLinks(userDto);
-        userDto.getOrders().stream().forEach((orderDto -> setOrderLinks(orderDto)));
-        userDto.getOrders().stream().forEach((orderDto -> setCertificateLinks(orderDto)));
         return userDto;
     }
 
 
-    private UserDto setLinks(UserDto userDto) {
-        String userId = String.valueOf(userDto.getId());
-        Link selfLink = linkTo(UserController.class).slash(userId)
-                .withSelfRel();
-        Link ordersLink =
-                linkTo(methodOn(UserController.class).getUserOrders(userDto.getId())).withRel("GET " +
-                        "orders");
-        Link allLink =
-                linkTo(WebMvcLinkBuilder.methodOn(UserController.class).showAll(1, 1)).withSelfRel();
-        userDto.add(selfLink, ordersLink, bestUserLink, allLink);
-        return userDto;
+    private void setLinks(UserDto userDto) {
+        addLinks(userDto);
+        userDto.getOrders().stream().
+                forEach((orderDto -> setOrderLinks(orderDto)));
     }
 
-    private OrderDto setOrderLinks(OrderDto orderDto) {
-        orderDto.add(linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                .getUserWithOrders(orderDto.getUserId())).withSelfRel());
-        return orderDto;
+    private void setOrderLinks(OrderDto orderDto) {
+        addLinks(orderDto);
+        orderDto.getCertificates().stream().
+                forEach((certificateDto -> addLinks(certificateDto)));
+        orderDto.getCertificates().stream().
+                forEach((certificateDto -> certificateDto.getTags().stream().
+                        forEach((tagDto -> addLinks(tagDto)))));
     }
-
-    private OrderDto setCertificateLinks(OrderDto orderDto) {
-        orderDto.getCertificates().stream().forEach(
-                certificate -> certificate.add(linkTo((CertificateController.class)).withRel("POST create"),
-                        linkTo(CertificateController.class).slash("id").withRel(
-                                "DELETE by id"),
-                        linkTo((CertificateController.class)).slash("id").withRel(
-                                "PATCH by id"),
-                        linkTo((CertificateController.class)).slash("id").withRel(
-                                "GET by id"),
-                        linkTo((CertificateController.class)).withRel(
-                                "GET all")));
-        return orderDto;
-    }
-
 }

@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.controller.hateoas.LinkAdder;
 import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.service.dto.certificate.CertificateDtoService;
 import com.epam.esm.service.dto.certificate.CertificateDtoServiceI;
@@ -18,9 +19,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequestMapping("/certificates")
-public class CertificateController {
+public class CertificateController implements LinkAdder {
 
-    private CertificateDtoServiceI service;
     private final Link createLink =
             linkTo((CertificateController.class)).withRel("POST create");
     private final Link deleteLink =
@@ -35,6 +35,7 @@ public class CertificateController {
     private final Link getAllLink =
             linkTo((CertificateController.class)).withRel(
                     "GET all");
+    private CertificateDtoServiceI service;
 
     @Autowired
     public CertificateController(CertificateDtoService service) {
@@ -55,16 +56,10 @@ public class CertificateController {
         List<CertificateDto> certificates =
                 service.findPaginated(name, description, sortField,
                         sortOrder, tagName, page, size);
-        certificates.stream().forEach((certificateDto -> certificateDto.getTags()
-                .stream().forEach(tagDto
-                        -> tagDto.add(linkTo(TagController.class).slash(tagDto.getId()).withRel("GET one"),
-                        linkTo(TagController.class).withRel("GET all"),
-                        linkTo(TagController.class).slash(tagDto.getId()).withRel("DELETE by id"),
-                        linkTo(TagController.class).withRel("POST create")))));
+        certificates.stream().forEach((certificateDto -> setLinks(certificateDto)));
         Link selfLink =
                 linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                         .getAll(name, description, sortField, sortOrder, tagName, page, size)).withSelfRel();
-
         CollectionModel<CertificateDto> result =
                 CollectionModel.of(certificates, selfLink);
         result.add(createLink, deleteLink, patchLink, getByIdLink);
@@ -76,16 +71,14 @@ public class CertificateController {
     @ResponseStatus(HttpStatus.CREATED)
     public CertificateDto create(@Validated @RequestBody CertificateDto certificate) {
         CertificateDto certificateDto = service.create(certificate);
-        Link link =
-                linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class).getById(certificate.getId())).withSelfRel();
-        certificateDto.add(link, deleteLink, patchLink, getByIdLink, getAllLink);
+        setLinks(certificateDto);
         return certificateDto;
     }
 
     @GetMapping("/{id}")
     public CertificateDto getById(@PathVariable("id") long id) {
         CertificateDto certificateDto = service.read(id);
-        certificateDto.add(getAllLink, deleteLink, createLink, patchLink);
+        setLinks(certificateDto);
         return certificateDto;
     }
 
@@ -95,7 +88,7 @@ public class CertificateController {
                                  @Validated @RequestBody CertificateDto patchedCertificate) {
         service.patch(id, patchedCertificate);
         CertificateDto certificateDto = service.read(id);
-        certificateDto.add(getAllLink, deleteLink, createLink, patchLink);
+        setLinks(certificateDto);
         return certificateDto;
     }
 
@@ -103,5 +96,10 @@ public class CertificateController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") int id) {
         service.delete(service.read(id));
+    }
+
+    private void setLinks(CertificateDto certificateDto) {
+        addLinks(certificateDto);
+        certificateDto.getTags().stream().forEach((tagDto -> addLinks(tagDto)));
     }
 }

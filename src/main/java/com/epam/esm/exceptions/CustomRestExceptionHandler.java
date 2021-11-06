@@ -21,33 +21,22 @@ import static com.epam.esm.enums.ErrorCode.ARGUMENT_NOT_VALID;
 @ControllerAdvice
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
-//    @Override
-//    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-//        ex.printStackTrace();
-//        ex.getMessage();
-//
-//        return super.handleExceptionInternal(ex, body, headers, status, request);
-//    }
-
-
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ApiError errorDetails = new ApiError(
-                ex.getLocalizedMessage(), ARGUMENT_NOT_VALID.getErrorCode());
-        return handleExceptionInternal(ex, errorDetails, headers, HttpStatus.BAD_REQUEST, request);
+                ex.getCause().getLocalizedMessage(), ARGUMENT_NOT_VALID.getErrorCode());
+        ResponseEntity<Object> entity =
+                new ResponseEntity<Object>(errorDetails, status);
+        return entity;
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<String> errorList = ex
-                .getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(fieldError -> fieldError.getDefaultMessage())
-                .collect(Collectors.toList());
         ApiError errorDetails = new ApiError(
-                errorList.toString(), ARGUMENT_NOT_VALID.getErrorCode());
-        return handleExceptionInternal(ex, errorDetails, headers, HttpStatus.BAD_REQUEST, request);
+                ex.getMessage(), ARGUMENT_NOT_VALID.getErrorCode());
+        ResponseEntity<Object> entity =
+                new ResponseEntity<Object>(errorDetails, status);
+        return entity;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
