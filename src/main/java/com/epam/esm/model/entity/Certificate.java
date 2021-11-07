@@ -4,15 +4,15 @@ import com.epam.esm.model.audit.AuditListener;
 import com.epam.esm.model.audit.AuditObject;
 import com.epam.esm.model.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 @Getter
@@ -37,12 +37,6 @@ public class Certificate extends BaseEntity implements Auditable {
     )
     @JsonIgnoreProperties("certificates")
     private Set<Tag> tags = new HashSet<>();
-
-    public void addTag(Tag tag) {
-        tags.add(tag);
-        tag.getCertificates().add(this);
-    }
-
     @Transient
     private AuditObject auditObject;
 
@@ -57,6 +51,11 @@ public class Certificate extends BaseEntity implements Auditable {
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
         this.tags = tags;
+    }
+
+    public void addTag(Tag tag) {
+        tags.add(tag);
+        tag.getCertificates().add(this);
     }
 
     @Override

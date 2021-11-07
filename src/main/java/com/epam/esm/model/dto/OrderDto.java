@@ -1,6 +1,5 @@
 package com.epam.esm.model.dto;
 
-import com.epam.esm.model.entity.Certificate;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;

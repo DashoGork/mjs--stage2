@@ -8,6 +8,7 @@ import com.epam.esm.service.entity.user.UserService;
 import com.epam.esm.service.entity.user.UserServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
 
@@ -26,6 +27,7 @@ public class OrderService implements OrderServiceI {
         this.userService = userService;
     }
 
+    @Transactional
     public Order addOrder(Order order) {
         order.setPrice();
         order.setTimeOfPurchase();

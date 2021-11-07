@@ -1,7 +1,5 @@
 package com.epam.esm.service.entity;
 
-import com.epam.esm.model.entity.Tag;
-
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;

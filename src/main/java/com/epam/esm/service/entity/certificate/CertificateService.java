@@ -5,7 +5,6 @@ import com.epam.esm.dao.tag.TagDao;
 import com.epam.esm.enums.SortOptions;
 import com.epam.esm.enums.SortOrder;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
-import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapper;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapperImpl;
 import com.epam.esm.model.entity.Certificate;
@@ -16,6 +15,7 @@ import com.epam.esm.service.entity.tag.TagServiceI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
 import java.util.*;
@@ -43,7 +43,7 @@ public class CertificateService implements CertificateServiceI, PaginationServic
         this.patchedMapper = patchedMapper;
     }
 
-    private Certificate read(String name) {
+    Certificate read(String name) {
         if (name != null) {
             Optional<Certificate> certificate =
                     Optional.ofNullable(certificateDao.findCertificateByName(name));
@@ -59,6 +59,7 @@ public class CertificateService implements CertificateServiceI, PaginationServic
         }
     }
 
+    @Transactional
     public Certificate create(Certificate certificate) {
         Date dateOfCreation = new Date();
         try {
@@ -84,7 +85,8 @@ public class CertificateService implements CertificateServiceI, PaginationServic
         if (id > 0) {
             Optional<Certificate> certificate = certificateDao.findById(id);
             if (!certificate.isPresent()) {
-                throw new TagNotFoundException("Tag wasn't" +
+                throw new GiftCertificateNotFoundException("Certificate " +
+                        "wasn't" +
                         " found. id =" + id);
             } else {
                 return certificate.get();
@@ -94,10 +96,12 @@ public class CertificateService implements CertificateServiceI, PaginationServic
         }
     }
 
+    @Transactional
     public void delete(Certificate certificate) {
         certificateDao.delete(certificate);
     }
 
+    @Transactional
     public void patch(long id, Certificate patchedCertificate) {
         Certificate oldCertificate = read(id);
         List<Tag> oldTags = tagDao.findTagsByCertificates(oldCertificate);
@@ -135,7 +139,7 @@ public class CertificateService implements CertificateServiceI, PaginationServic
         return paginate(certificates, size, page);
     }
 
-    private List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
+    List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
         if (!sortField.isEmpty() & !sortOrder.isEmpty()) {
             Comparator<Certificate> comparator;
             if (SortOptions.DATE.name().equals(sortField.toUpperCase(Locale.ROOT))) {
@@ -159,16 +163,21 @@ public class CertificateService implements CertificateServiceI, PaginationServic
     }
 
     List<Certificate> getAllCertificatesByTagName(String tagName) {
-        String[] tagsNames = tagName.split(",");
-        Set<Tag> tags = new HashSet<>();
-        for (String name : tagsNames) {
-            Tag tag = tagDao.findTagByName(name.trim());
-            if (tag != null) {
-                tags.add(tag);
+        List<Certificate> certificates = new ArrayList<>();
+        if (!tagName.isEmpty()) {
+            String[] tagsNames = tagName.split(",");
+            Set<Tag> tags = new HashSet<>();
+            for (String name : tagsNames) {
+                Tag tag = tagDao.findTagByName(name.trim());
+                if (tag != null) {
+                    tags.add(tag);
+                }
             }
+            certificates = certificateDao.findAll();
+            certificates =
+                    certificates.stream().filter((certificate -> certificate.getTags().containsAll(tags))).collect(Collectors.toList());
         }
-        List<Certificate> certificates = certificateDao.findAll();
-        return certificates.stream().filter((certificate -> certificate.getTags().containsAll(tags))).collect(Collectors.toList());
+        return certificates;
     }
 
     List<Certificate> searchByPartOfName(String query) {

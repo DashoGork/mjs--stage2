@@ -1,4 +1,3 @@
-
 package com.epam.esm.service.dto.order;
 
 import com.epam.esm.mapper.order.OrderDtoMapper;
@@ -28,4 +27,3 @@ public class OrderDtoService implements OrderDtoServiceI {
         return mapper.orderToOrderDto(service.addOrder(order));
     }
 }
-

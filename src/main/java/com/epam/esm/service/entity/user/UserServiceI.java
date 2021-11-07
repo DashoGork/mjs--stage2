@@ -10,6 +10,5 @@ public interface UserServiceI {
     List<User> read();
     List<Order> readOrdersByIdUser(long id);
     User bestUser();
-
     List<User> findPaginated(int size, int page);
 }

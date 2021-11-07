@@ -9,4 +9,6 @@ public interface TagServiceI extends Service<Tag> {
     Tag read(String name);
 
     List<Tag> findPaginated(int size, int page);
+
+    Tag getTagsOfUserWithHighestPriceOfOrders();
 }

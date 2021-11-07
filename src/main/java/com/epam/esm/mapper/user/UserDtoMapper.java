@@ -5,6 +5,5 @@ import com.epam.esm.model.entity.User;
 
 public interface UserDtoMapper {
     User userDtoToUser(UserDto userDto);
-
     UserDto userToUserDto(User user);
 }

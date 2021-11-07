@@ -63,4 +63,11 @@ public class TagController implements LinkAdder {
         addLinks(tagDto);
         return tagDto;
     }
+
+    @GetMapping("/best")
+    public TagDto getMostUsed() {
+        TagDto tagDto = tagService.getTagsOfUserWithHighestPriceOfOrders();
+        addLinks(tagDto);
+        return tagDto;
+    }
 }

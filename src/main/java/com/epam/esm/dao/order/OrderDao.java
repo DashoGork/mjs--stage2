@@ -1,7 +1,6 @@
 package com.epam.esm.dao.order;
 
 import com.epam.esm.model.entity.Order;
-import com.epam.esm.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

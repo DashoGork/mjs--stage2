@@ -15,4 +15,9 @@ public interface TagDao extends JpaRepository<Tag, Long> {
 
     List<Tag> findTagsByCertificates(Certificate certificate);
 
+    @Query("select t from Tag t where t.name in (select u.name from" +
+            "                       UserTagView " +
+            "                         u where u.countTag = (select MAX" +
+            "(countTag)  from UserTagView where id = ?1) and u.id =?1)")
+    List<Tag> findMostUsedTagOfTopUser(long id);
 }

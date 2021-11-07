@@ -3,7 +3,10 @@ package com.epam.esm.controller.hateoas;
 import com.epam.esm.controller.CertificateController;
 import com.epam.esm.controller.TagController;
 import com.epam.esm.controller.UserController;
-import com.epam.esm.model.dto.*;
+import com.epam.esm.model.dto.CertificateDto;
+import com.epam.esm.model.dto.OrderDto;
+import com.epam.esm.model.dto.TagDto;
+import com.epam.esm.model.dto.UserDto;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 

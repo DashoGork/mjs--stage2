@@ -5,16 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.persistence.PostPersist;
-import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Setter
 @Getter

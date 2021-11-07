@@ -1,14 +1,12 @@
 package com.epam.esm.mapper.certificate;
 
-import com.epam.esm.model.entity.Certificate;
-import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.model.dto.TagDto;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component

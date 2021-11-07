@@ -1,4 +1,3 @@
-
 package com.epam.esm.service.dto.user;
 
 import com.epam.esm.mapper.order.OrderDtoMapper;
@@ -70,4 +69,3 @@ public class UserDtoService implements UserDtoServiceI {
                 .collect(Collectors.toList());
     }
 }
-

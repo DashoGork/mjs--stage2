@@ -4,7 +4,6 @@ import com.epam.esm.model.audit.AuditListener;
 import com.epam.esm.model.audit.AuditObject;
 import com.epam.esm.model.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;

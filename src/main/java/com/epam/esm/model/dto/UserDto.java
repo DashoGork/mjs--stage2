@@ -1,6 +1,5 @@
 package com.epam.esm.model.dto;
 
-import com.epam.esm.model.entity.Order;
 import lombok.Getter;
 import lombok.Setter;
 

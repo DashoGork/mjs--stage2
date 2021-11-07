@@ -1,28 +1,32 @@
 package com.epam.esm.service.entity.tag;
 
+import com.epam.esm.dao.order.OrderDao;
 import com.epam.esm.dao.tag.TagDao;
 import com.epam.esm.exceptions.TagNotFoundException;
-import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.entity.PaginationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class TagService implements TagServiceI, PaginationService<Tag> {
     private TagDao tagDao;
+    private OrderDao orderDao;
 
     @Autowired
-    public TagService(TagDao tagDao) {
+    public TagService(TagDao tagDao,
+                      OrderDao orderDao) {
         this.tagDao = tagDao;
+        this.orderDao = orderDao;
     }
 
+
+    @Transactional
     public Tag create(Tag tag) {
         try {
             return read(tag.getName());
@@ -31,6 +35,7 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
         }
     }
 
+    @Transactional
     public void delete(Tag tag) {
         tagDao.delete(tag);
     }
@@ -70,5 +75,12 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
         } else {
             throw new InvalidParameterException("invalid id. id = " + id);
         }
+    }
+
+    @Override
+    public Tag getTagsOfUserWithHighestPriceOfOrders() {
+        List<Tag> mostUsedTagOfTopUser =
+                tagDao.findMostUsedTagOfTopUser(orderDao.findTopUserByPrice().get(0));
+        return mostUsedTagOfTopUser.get(0);
     }
 }

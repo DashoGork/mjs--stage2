@@ -1,0 +1,109 @@
+package com.epam.esm.service.entity.user;
+
+import com.epam.esm.dao.order.OrderDao;
+import com.epam.esm.dao.user.UserDao;
+import com.epam.esm.exceptions.BaseNotFoundException;
+import com.epam.esm.exceptions.TagNotFoundException;
+import com.epam.esm.model.entity.Order;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.model.entity.User;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UserServiceTest {
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private UserDao userDao;
+    @Mock
+    private OrderDao orderDao;
+
+    private UserService service;
+    private User firstUser;
+    private User secondUser;
+    private List<User> listOfAll;
+
+    @Before
+    public void setUp() throws Exception {
+        service = new UserService(orderDao, userDao);
+        firstUser = new User();
+        firstUser.setPurse(12);
+        firstUser.setId(12);
+        firstUser.setName("name");
+        secondUser = new User();
+        secondUser.setPurse(12);
+        secondUser.setId(12);
+        secondUser.setName("23");
+        secondUser.setOrders(new ArrayList<>());
+        listOfAll = new ArrayList<>();
+        listOfAll.add(firstUser);
+        listOfAll.add(secondUser);
+    }
+
+    @Test
+    public void read() {
+        when(userDao.findAll()).thenReturn(listOfAll);
+        assertTrue(service.read().equals(listOfAll));
+    }
+
+    @Test
+    public void testReadNotExisting() {
+        Optional<User> expected = Optional.ofNullable(null);
+        when(userDao.findById(1l)).thenReturn(expected);
+        expectedException.expect(BaseNotFoundException.class);
+        service.read(1);
+    }
+
+    @Test
+    public void testReadNotValid() {
+        expectedException.expect(InvalidParameterException.class);
+        service.read(0);
+    }
+
+    @Test
+    public void testReadById() {
+        Optional<User> expected = Optional.ofNullable(secondUser);
+        when(userDao.findById(1l)).thenReturn(expected);
+        User actual = service.read(1);
+        assertTrue(actual.equals(expected.get()));
+    }
+
+    @Test
+    public void readOrdersByIdUser() {
+        Optional<User> expected = Optional.ofNullable(secondUser);
+        when(userDao.findById(1l)).thenReturn(expected);
+        List<Order> orders = secondUser.getOrders();
+        assertTrue(service.readOrdersByIdUser(1l).equals(orders));
+    }
+
+    @Test
+    public void findPaginated() {
+        when(userDao.findAll()).thenReturn(listOfAll);
+        assertTrue(service.findPaginated(1, 1).size() == 1);
+        assertTrue(service.findPaginated(2, 1).size() == 2);
+    }
+
+    @Test
+    public void bestUser() {
+        List<Long> ids = new ArrayList<>();
+        ids.add(1l);
+        when(orderDao.findTopUserByPrice()).thenReturn(ids);
+        Optional<User> expected = Optional.ofNullable(firstUser);
+        when(userDao.findById(1l)).thenReturn(expected);
+        assertTrue(service.bestUser().equals(firstUser));
+    }
+}

@@ -1,8 +1,9 @@
 package com.epam.esm.model.entity;
 
-import com.epam.esm.model.audit.AuditListener;
-import lombok.*;
-import org.springframework.context.annotation.Primary;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Objects;

@@ -3,9 +3,7 @@ package com.epam.esm.model.entity;
 import com.epam.esm.model.audit.AuditListener;
 import com.epam.esm.model.audit.AuditObject;
 import com.epam.esm.model.audit.Auditable;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
