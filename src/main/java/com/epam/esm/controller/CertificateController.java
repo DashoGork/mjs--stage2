@@ -5,18 +5,18 @@ import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.service.dto.certificate.CertificateDtoService;
 import com.epam.esm.service.dto.certificate.CertificateDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-
+@Validated
 @RestController
 @RequestMapping("/certificates")
 public class CertificateController implements LinkAdder {
@@ -42,16 +42,15 @@ public class CertificateController implements LinkAdder {
         this.service = service;
     }
 
-
     @GetMapping
-    public CollectionModel<CertificateDto> getAll(
+    public List<CertificateDto> getAll(
             @RequestParam(defaultValue = "", required = false) String name,
             @RequestParam(defaultValue = "", required = false) String description,
             @RequestParam(defaultValue = "", required = false) String sortField,
             @RequestParam(defaultValue = "", required = false) String sortOrder,
             @RequestParam(defaultValue = "", required = false) String tagName,
-            @RequestParam("page") int page,
-            @RequestParam("size") int size
+            @Min(1) @RequestParam("page") int page,
+            @Min(1) @RequestParam("size") int size
     ) {
         List<CertificateDto> certificates =
                 service.findPaginated(name, description, sortField,
@@ -60,10 +59,7 @@ public class CertificateController implements LinkAdder {
         Link selfLink =
                 linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                         .getAll(name, description, sortField, sortOrder, tagName, page, size)).withSelfRel();
-        CollectionModel<CertificateDto> result =
-                CollectionModel.of(certificates, selfLink);
-        result.add(createLink, deleteLink, patchLink, getByIdLink);
-        return result;
+        return certificates;
     }
 
 

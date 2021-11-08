@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
+
 import static com.epam.esm.enums.ErrorCode.ARGUMENT_NOT_VALID;
 
 @ControllerAdvice
@@ -41,6 +43,12 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiError springHandleIllegalArgumentException(IllegalArgumentException exception) {
         return new ApiError(exception.getMessage(), ErrorCode.TAG_NOT_FOUND.getErrorCode());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+        return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ParameterValidationException.class)

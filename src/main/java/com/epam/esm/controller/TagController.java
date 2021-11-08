@@ -5,18 +5,14 @@ import com.epam.esm.model.dto.TagDto;
 import com.epam.esm.service.dto.tag.TagDtoService;
 import com.epam.esm.service.dto.tag.TagDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-
-
+@Validated
 @RestController
 @RequestMapping("/tags")
 public class TagController implements LinkAdder {
@@ -28,17 +24,13 @@ public class TagController implements LinkAdder {
     }
 
     @GetMapping
-    public CollectionModel<TagDto> getAll(@RequestParam("page") int page,
-                                          @RequestParam("size") int size) {
+    public List<TagDto> getAll(@Min(1) @RequestParam("page") int page,
+                               @Min(1) @RequestParam("size") int size) {
         final List<TagDto> tags = tagService.findPaginated(page, size);
         for (final TagDto tag : tags) {
             addLinks(tag);
         }
-        Link link =
-                linkTo(WebMvcLinkBuilder.methodOn(TagController.class).getAll(page, size)).withSelfRel();
-        CollectionModel<TagDto> result = CollectionModel.of(tags
-                , link);
-        return result;
+        return tags;
     }
 
     @GetMapping("/{id}")

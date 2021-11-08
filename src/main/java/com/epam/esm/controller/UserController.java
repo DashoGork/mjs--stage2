@@ -6,16 +6,17 @@ import com.epam.esm.model.dto.UserDto;
 import com.epam.esm.service.dto.user.UserDtoService;
 import com.epam.esm.service.dto.user.UserDtoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Validated
 @RestController
 @RequestMapping("/users")
 public class UserController implements LinkAdder {
@@ -31,15 +32,11 @@ public class UserController implements LinkAdder {
     }
 
     @GetMapping
-    public CollectionModel<UserDto> showAll(@RequestParam("page") int page,
-                                            @RequestParam("size") int size) {
+    public List<UserDto> showAll(@Min(1) @RequestParam("page") int page,
+                                 @Min(1) @RequestParam("size") int size) {
         final List<UserDto> users = service.findPaginated(page, size);
         users.stream().forEach((userDto -> setLinks(userDto)));
-        Link link =
-                linkTo(WebMvcLinkBuilder.methodOn(UserController.class).showAll(page, size)).withSelfRel();
-        CollectionModel<UserDto> result = CollectionModel.of(users
-                , link, bestUserLink);
-        return result;
+        return users;
     }
 
     @GetMapping("/{id}")
