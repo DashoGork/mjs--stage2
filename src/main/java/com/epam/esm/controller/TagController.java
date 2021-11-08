@@ -34,7 +34,7 @@ public class TagController implements LinkAdder {
     }
 
     @GetMapping("/{id}")
-    public TagDto getById(@PathVariable("id") long id) {
+    public TagDto getById(@Min(1) @PathVariable("id") long id) {
         TagDto tagDto = tagService.read(id);
         addLinks(tagDto);
         return tagDto;
@@ -42,7 +42,7 @@ public class TagController implements LinkAdder {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("id") long id) {
+    public void deleteById(@Min(1) @PathVariable("id") long id) {
         TagDto tag = new TagDto();
         tag.setId(id);
         tagService.delete(tag);

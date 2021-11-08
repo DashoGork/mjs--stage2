@@ -21,20 +21,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping("/certificates")
 public class CertificateController implements LinkAdder {
 
-    private final Link createLink =
-            linkTo((CertificateController.class)).withRel("POST create");
-    private final Link deleteLink =
-            linkTo(CertificateController.class).slash("id").withRel(
-                    "DELETE by id");
-    private final Link patchLink =
-            linkTo((CertificateController.class)).slash("id").withRel(
-                    "PATCH by id");
-    private final Link getByIdLink =
-            linkTo((CertificateController.class)).slash("id").withRel(
-                    "GET by id");
-    private final Link getAllLink =
-            linkTo((CertificateController.class)).withRel(
-                    "GET all");
     private CertificateDtoServiceI service;
 
     @Autowired
@@ -72,7 +58,7 @@ public class CertificateController implements LinkAdder {
     }
 
     @GetMapping("/{id}")
-    public CertificateDto getById(@PathVariable("id") long id) {
+    public CertificateDto getById(@Min(1) @PathVariable("id") long id) {
         CertificateDto certificateDto = service.read(id);
         setLinks(certificateDto);
         return certificateDto;
@@ -80,7 +66,7 @@ public class CertificateController implements LinkAdder {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CertificateDto update(@PathVariable Long id,
+    public CertificateDto update(@Min(1) @PathVariable Long id,
                                  @Validated @RequestBody CertificateDto patchedCertificate) {
         service.patch(id, patchedCertificate);
         CertificateDto certificateDto = service.read(id);
@@ -90,7 +76,7 @@ public class CertificateController implements LinkAdder {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") int id) {
+    public void delete(@PathVariable("id") @Min(1) int id) {
         service.delete(service.read(id));
     }
 

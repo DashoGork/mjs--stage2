@@ -82,17 +82,13 @@ public class CertificateService implements CertificateServiceI, PaginationServic
 
     @Override
     public Certificate read(long id) {
-        if (id > 0) {
-            Optional<Certificate> certificate = certificateDao.findById(id);
-            if (!certificate.isPresent()) {
-                throw new GiftCertificateNotFoundException("Certificate " +
-                        "wasn't" +
-                        " found. id =" + id);
-            } else {
-                return certificate.get();
-            }
+        Optional<Certificate> certificate = certificateDao.findById(id);
+        if (!certificate.isPresent()) {
+            throw new GiftCertificateNotFoundException("Certificate " +
+                    "wasn't" +
+                    " found. id =" + id);
         } else {
-            throw new InvalidParameterException("invalid id. id = " + id);
+            return certificate.get();
         }
     }
 

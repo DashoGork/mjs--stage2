@@ -64,16 +64,12 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
     }
 
     public Tag read(long id) {
-        if (id > 0) {
-            Optional<Tag> tag = tagDao.findById(id);
-            if (!tag.isPresent()) {
-                throw new TagNotFoundException("Tag wasn't" +
-                        " found. id =" + id);
-            } else {
-                return tag.get();
-            }
+        Optional<Tag> tag = tagDao.findById(id);
+        if (!tag.isPresent()) {
+            throw new TagNotFoundException("Tag wasn't" +
+                    " found. id =" + id);
         } else {
-            throw new InvalidParameterException("invalid id. id = " + id);
+            return tag.get();
         }
     }
 
