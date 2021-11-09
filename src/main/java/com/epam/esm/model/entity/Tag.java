@@ -41,12 +41,12 @@ public class Tag extends BaseEntity implements Auditable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Tag tag = (Tag) o;
-        return Objects.equals(certificates, tag.certificates);
+        return Objects.equals(name, tag.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), certificates);
+        return Objects.hash(super.hashCode(), name);
     }
 
     public String getName() {
