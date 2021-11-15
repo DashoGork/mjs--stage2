@@ -8,10 +8,6 @@ import java.util.List;
 public interface CertificateDtoServiceI extends Service<CertificateDto> {
     void patch(long id, CertificateDto patchedCertificate);
 
-    List<CertificateDto> getByTagOrQueryAndSort(String name, String description,
-                                                String sortField, String sortOrder,
-                                                String tagName);
-
     List<CertificateDto> findPaginated(String name, String description,
                                        String sortField, String sortOrder,
                                        String tagName,

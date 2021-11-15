@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,5 +18,6 @@ public class OrderDto extends BaseEntityDto {
     @NotNull
     private long userId;
     private Date timeOfPurchase;
+    @NotEmpty
     private Set<CertificateDto> certificates = new HashSet<>();
 }

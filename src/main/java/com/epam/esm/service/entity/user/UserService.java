@@ -1,35 +1,33 @@
 package com.epam.esm.service.entity.user;
 
-import com.epam.esm.dao.order.OrderDao;
-import com.epam.esm.dao.user.UserDao;
+import com.epam.esm.dao.user.UserDaoI;
+import com.epam.esm.dao.user.impl.UserDao;
 import com.epam.esm.exceptions.BaseNotFoundException;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
-import com.epam.esm.service.entity.PaginationService;
+import com.epam.esm.service.entity.PaginationCalcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserServiceI, PaginationService<User> {
-    private UserDao userDao;
-    private OrderDao orderDao;
+public class UserService implements UserServiceI, PaginationCalcService {
+    private UserDaoI userDao;
 
     @Autowired
-    public UserService(OrderDao orderDao,
-                       UserDao userDao) {
-        this.orderDao = orderDao;
+    public UserService(UserDao userDao) {
         this.userDao = userDao;
     }
 
     public List<User> read() {
-        return userDao.findAll();
+        return userDao.read();
     }
 
     public User read(long id) {
-        Optional<User> user = userDao.findById(id);
+        Optional<User> user = userDao.read(id);
         if (!user.isPresent()) {
             throw new BaseNotFoundException("User wasn't" +
                     " found. id =" + id);
@@ -44,11 +42,7 @@ public class UserService implements UserServiceI, PaginationService<User> {
 
     @Override
     public List<User> findPaginated(int size, int page) {
-        return paginate(read(), size, page);
-    }
-
-    @Override
-    public User bestUser() {
-        return read(orderDao.findTopUserByPrice().get(0));
+        Map<String, Integer> indexes = paginate(read().size(), size, page);
+        return userDao.read(indexes.get("offset"), indexes.get("limit"));
     }
 }

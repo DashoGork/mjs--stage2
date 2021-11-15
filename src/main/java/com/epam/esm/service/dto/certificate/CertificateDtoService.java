@@ -52,14 +52,6 @@ public class CertificateDtoService implements CertificateDtoServiceI {
         service.patch(id, mapper.certificateDtoToCertificate(patchedCertificate));
     }
 
-    @Override
-    public List<CertificateDto> getByTagOrQueryAndSort(String name,
-                                                       String description,
-                                                       String sortField, String sortOrder, String tagName) {
-        return certificateListToCertificateDtoList(service.getCertificatesByCriteria(name, description
-                , sortField, sortOrder, tagName));
-    }
-
     private List<CertificateDto> certificateListToCertificateDtoList(List<Certificate> certificateList) {
         return certificateList.stream()
                 .map((certificate -> mapper.certificateToCertificateDto(certificate)))

@@ -72,4 +72,12 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiError(exception.getMessage(), ErrorCode.CERTIFICATE_NOT_FOUND.getErrorCode());
     }
 
+    @ExceptionHandler(BaseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ApiError springHandleBaseNotFound(GiftCertificateNotFoundException exception) {
+        return new ApiError(exception.getMessage(),
+                ErrorCode.BASE_NOT_FOUND.getErrorCode());
+    }
+
 }

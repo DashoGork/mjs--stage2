@@ -1,10 +1,10 @@
 package com.epam.esm.service.entity.order;
 
-import com.epam.esm.dao.order.OrderDao;
-import com.epam.esm.dao.user.UserDao;
+import com.epam.esm.dao.giftCertificate.impl.CertificateDao;
+import com.epam.esm.dao.order.impl.OrderDao;
+import com.epam.esm.dao.user.impl.UserDao;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
-import com.epam.esm.service.entity.certificate.CertificateService;
 import com.epam.esm.service.entity.user.UserService;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.security.InvalidParameterException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -29,6 +29,8 @@ public class OrderServiceTest {
     UserDao userDao;
     @Mock
     UserService userService;
+    @Mock
+    CertificateDao certificateDao;
     private OrderService service;
     @Mock
     private Order order;
@@ -38,7 +40,7 @@ public class OrderServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new OrderService(orderDao, userDao, userService);
+        service = new OrderService(orderDao, userDao, userService, certificateDao);
         user = new User();
         user.setId(1l);
         user.setPurse(34);
@@ -52,8 +54,9 @@ public class OrderServiceTest {
         when(order.getUserId()).thenReturn(1l);
         when(userService.read(1l)).thenReturn(user);
         when(order.getPrice()).thenReturn(10l);
-        when(userDao.save(any())).thenReturn(null);
-        when(orderDao.save(any())).thenReturn(new Order());
+//        doNothing().when(userDao.create(any()));
+//        when(userDao.create(any());).thenReturn(null);
+        when(orderDao.create(any())).thenReturn(new Order());
         service.addOrder(order);
         assertTrue(user.getPurse() < userPurseBefore);
     }

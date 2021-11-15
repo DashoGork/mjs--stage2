@@ -86,6 +86,8 @@ public class OrderDtoMapperImpl implements OrderDtoMapper {
         certificate.setPrice(certificateDto.getPrice());
         certificate.setDuration(certificateDto.getDuration());
         certificate.setTags(tagDtoSetToTagSet(certificateDto.getTags()));
+        certificate.setLastUpdateDate(certificateDto.getLastUpdateDate());
+        certificate.setCreateDate(certificateDto.getCreateDate());
 
         return certificate;
     }
@@ -142,6 +144,8 @@ public class OrderDtoMapperImpl implements OrderDtoMapper {
         certificateDto.setDescription(certificate.getDescription());
         certificateDto.setName(certificate.getName());
         certificateDto.setTags(tagSetToTagDtoSet(certificate.getTags()));
+        certificateDto.setCreateDate(certificate.getCreateDate());
+        certificateDto.setLastUpdateDate(certificate.getLastUpdateDate());
 
         return certificateDto;
     }

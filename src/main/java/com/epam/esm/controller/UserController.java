@@ -48,14 +48,6 @@ public class UserController implements LinkAdder {
         return orders;
     }
 
-    @GetMapping("/best")
-    public UserDto getBest() {
-        UserDto userDto = service.bestUser();
-        setLinks(userDto);
-        return userDto;
-    }
-
-
     private void setLinks(UserDto userDto) {
         addLinks(userDto);
         userDto.getOrders().stream().

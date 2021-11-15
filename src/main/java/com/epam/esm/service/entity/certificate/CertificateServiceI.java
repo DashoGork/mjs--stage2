@@ -8,10 +8,6 @@ import java.util.List;
 public interface CertificateServiceI extends Service<Certificate> {
     void patch(long id, Certificate patchedCertificate);
 
-    List<Certificate> getCertificatesByCriteria(String name, String description,
-                                                String sortField, String sortOrder,
-                                                String tagName);
-
     List<Certificate> findPaginated(String name, String description,
                                     String sortField, String sortOrder,
                                     String tagName,

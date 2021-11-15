@@ -53,9 +53,6 @@ public interface LinkAdder {
                         "orders");
         Link allLink =
                 linkTo(WebMvcLinkBuilder.methodOn(UserController.class).showAll(1, 1)).withRel("GET all");
-        Link bestUserLink =
-                linkTo(methodOn(UserController.class).getBest()).withRel("GET " +
-                        "best user");
-        userDto.add(selfLink, ordersLink, bestUserLink, allLink);
+        userDto.add(selfLink, ordersLink, allLink);
     }
 }

@@ -1,28 +1,27 @@
 package com.epam.esm.service.entity.tag;
 
-import com.epam.esm.dao.order.OrderDao;
-import com.epam.esm.dao.tag.TagDao;
+import com.epam.esm.dao.tag.TagDaoI;
+import com.epam.esm.dao.tag.impl.TagDao;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.service.entity.PaginationService;
+import com.epam.esm.service.entity.PaginationCalcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class TagService implements TagServiceI, PaginationService<Tag> {
-    private TagDao tagDao;
-    private OrderDao orderDao;
+public class TagService implements TagServiceI, PaginationCalcService {
+    private TagDaoI tagDaoI;
 
     @Autowired
-    public TagService(TagDao tagDao,
-                      OrderDao orderDao) {
-        this.tagDao = tagDao;
-        this.orderDao = orderDao;
+    public TagService(
+            TagDao tagDaoI) {
+        this.tagDaoI = tagDaoI;
     }
 
 
@@ -31,27 +30,29 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
         try {
             return read(tag.getName());
         } catch (TagNotFoundException e) {
-            return tagDao.save(tag);
+            tagDaoI.create(tag);
+            return read(tag.getName());
         }
     }
 
     @Transactional
     public void delete(Tag tag) {
-        tagDao.delete(tag);
+        tagDaoI.delete(tag);
     }
 
     public List<Tag> read() {
-        return tagDao.findAll();
+        return tagDaoI.read();
     }
 
     @Override
     public List<Tag> findPaginated(int size, int page) {
-        return paginate(read(), size, page);
+        Map<String, Integer> indexes = paginate(read().size(), size, page);
+        return tagDaoI.read(indexes.get("offset"), indexes.get("limit"));
     }
 
     public Tag read(String name) {
         if (name != null) {
-            Optional<Tag> tag = Optional.ofNullable(tagDao.findTagByName(name));
+            Optional<Tag> tag = (tagDaoI.findTagByName(name));
             if (!tag.isPresent()) {
                 throw new TagNotFoundException("Tag wasn't" +
                         " found. name =" + name);
@@ -64,7 +65,7 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
     }
 
     public Tag read(long id) {
-        Optional<Tag> tag = tagDao.findById(id);
+        Optional<Tag> tag = tagDaoI.read(id);
         if (!tag.isPresent()) {
             throw new TagNotFoundException("Tag wasn't" +
                     " found. id =" + id);
@@ -75,8 +76,8 @@ public class TagService implements TagServiceI, PaginationService<Tag> {
 
     @Override
     public Tag getTagsOfUserWithHighestPriceOfOrders() {
-        List<Tag> mostUsedTagOfTopUser =
-                tagDao.findMostUsedTagOfTopUser(orderDao.findTopUserByPrice().get(0));
-        return mostUsedTagOfTopUser.get(0);
+        String mostUsedTagOfTopUser =
+                tagDaoI.findMostUsedTagOfTopUser();
+        return read(mostUsedTagOfTopUser);
     }
 }

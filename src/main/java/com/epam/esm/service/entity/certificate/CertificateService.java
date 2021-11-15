@@ -1,15 +1,15 @@
 package com.epam.esm.service.entity.certificate;
 
-import com.epam.esm.dao.giftCertificate.CertificateDao;
-import com.epam.esm.dao.tag.TagDao;
-import com.epam.esm.enums.SortOptions;
-import com.epam.esm.enums.SortOrder;
+import com.epam.esm.dao.giftCertificate.CertificateDaoI;
+import com.epam.esm.dao.giftCertificate.impl.CertificateDao;
+import com.epam.esm.dao.tag.TagDaoI;
+import com.epam.esm.dao.tag.impl.TagDao;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapper;
 import com.epam.esm.mapper.certificate.CertificatePatchedMapperImpl;
 import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.service.entity.PaginationService;
+import com.epam.esm.service.entity.PaginationCalcService;
 import com.epam.esm.service.entity.tag.TagService;
 import com.epam.esm.service.entity.tag.TagServiceI;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class CertificateService implements CertificateServiceI, PaginationService {
-    private TagDao tagDao;
-    private CertificateDao certificateDao;
+public class CertificateService implements CertificateServiceI, PaginationCalcService {
+    private TagDaoI tagDao;
+    private CertificateDaoI certificateDaoI;
     private TagServiceI tagService;
     private CertificatePatchedMapper patchedMapper;
 
@@ -33,12 +33,12 @@ public class CertificateService implements CertificateServiceI, PaginationServic
     @Autowired
     public CertificateService(
             TagDao tagDao,
-            CertificateDao certificateDao,
             TagService tagService,
-            CertificatePatchedMapperImpl patchedMapper
+            CertificatePatchedMapperImpl patchedMapper,
+            CertificateDao certificateDaoI
     ) {
+        this.certificateDaoI = certificateDaoI;
         this.tagDao = tagDao;
-        this.certificateDao = certificateDao;
         this.tagService = tagService;
         this.patchedMapper = patchedMapper;
     }
@@ -46,10 +46,9 @@ public class CertificateService implements CertificateServiceI, PaginationServic
     Certificate read(String name) {
         if (name != null) {
             Optional<Certificate> certificate =
-                    Optional.ofNullable(certificateDao.findCertificateByName(name));
+                    (certificateDaoI.findCertificateByName(name));
             if (!certificate.isPresent()) {
-                throw new GiftCertificateNotFoundException("Certificate " +
-                        "wasn't" +
+                throw new GiftCertificateNotFoundException("Certificate wasn't" +
                         " found. name =" + name);
             } else {
                 return certificate.get();
@@ -70,19 +69,20 @@ public class CertificateService implements CertificateServiceI, PaginationServic
             Set<Tag> tags = certificate.getTags().stream()
                     .map((tag -> tagService.create(tag))).collect(Collectors.toSet());
             certificate.setTags(tags);
-            return certificateDao.save(certificate);
+            certificateDaoI.create(certificate);
+            return read(certificate.getName());
         }
         return read(certificate.getName());
     }
 
     @Override
     public List<Certificate> read() {
-        return certificateDao.findAll();
+        return certificateDaoI.read();
     }
 
     @Override
     public Certificate read(long id) {
-        Optional<Certificate> certificate = certificateDao.findById(id);
+        Optional<Certificate> certificate = certificateDaoI.read(id);
         if (!certificate.isPresent()) {
             throw new GiftCertificateNotFoundException("Certificate " +
                     "wasn't" +
@@ -94,7 +94,7 @@ public class CertificateService implements CertificateServiceI, PaginationServic
 
     @Transactional
     public void delete(Certificate certificate) {
-        certificateDao.delete(certificate);
+        certificateDaoI.delete(certificate);
     }
 
     @Transactional
@@ -109,102 +109,13 @@ public class CertificateService implements CertificateServiceI, PaginationServic
                 }
             }
         }
-        certificateDao.saveAndFlush(patchedMapper.patchedToCertificate(patchedCertificate, oldCertificate));
-    }
-
-    public List<Certificate> getCertificatesByCriteria(String name,
-                                                       String description,
-                                                       String sortField,
-                                                       String sortOrder,
-                                                       String tagName) {
-        List<Certificate> certificates = new ArrayList<>();
-        if (!name.isEmpty() | !description.isEmpty() | !tagName.isEmpty()) {
-            certificates.addAll((searchByPartOfName(name)));
-            certificates.addAll((searchByPartOfDescription(description)));
-            certificates.addAll((getAllCertificatesByTagName(tagName)));
-        } else {
-            certificates.addAll((read()));
-        }
-        return (sortByAscDesc(sortField, sortOrder, certificates.stream().distinct().collect(Collectors.toList())));
+        certificateDaoI.patch(patchedMapper.patchedToCertificate(patchedCertificate, oldCertificate));
     }
 
     @Override
     public List<Certificate> findPaginated(String name, String description, String sortField, String sortOrder, String tagName, int page, int size) {
-        List<Certificate> certificates = getCertificatesByCriteria(name,
-                description, sortField, sortOrder, tagName);
-        return paginate(certificates, size, page);
-    }
-
-    List<Certificate> sortByAscDesc(String sortField, String sortOrder, List<Certificate> listToSort) {
-        if (!sortField.isEmpty() & !sortOrder.isEmpty()) {
-            Comparator<Certificate> comparator;
-            if (SortOptions.DATE.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                comparator = Comparator.comparing(certificate -> certificate.getCreateDate());
-            } else if (SortOptions.NAME.name().equals(sortField.toUpperCase(Locale.ROOT))) {
-                comparator = Comparator.comparing(certificate -> certificate.getName());
-            } else {
-                throw new IllegalArgumentException("Invalid sort field " + sortField);
-            }
-            if (SortOrder.ASC.name().equals(sortOrder.toUpperCase(Locale.ROOT)) | SortOrder.DESC
-                    .name().equals(sortOrder.toUpperCase(Locale.ROOT))) {
-                int sortOrderType =
-                        SortOrder.valueOf(sortOrder.toUpperCase(Locale.ROOT)).getValue();
-                listToSort = listToSort.stream().sorted((o1, o2) -> comparator.compare(o1, o2) *
-                        sortOrderType).collect(Collectors.toList());
-            } else {
-                throw new IllegalArgumentException("Invalid sort order " + sortOrder);
-            }
-        }
-        return listToSort;
-    }
-
-    List<Certificate> getAllCertificatesByTagName(String tagName) {
-        List<Certificate> certificates = new ArrayList<>();
-        if (!tagName.isEmpty()) {
-            String[] tagsNames = tagName.split(",");
-            Set<Tag> tags = new HashSet<>();
-            for (String name : tagsNames) {
-                Tag tag = tagDao.findTagByName(name.trim());
-                if (tag != null) {
-                    tags.add(tag);
-                }
-            }
-            certificates = certificateDao.findAll();
-            certificates =
-                    certificates.stream().filter((certificate -> certificate.getTags().containsAll(tags))).collect(Collectors.toList());
-        }
-        return certificates;
-    }
-
-    List<Certificate> searchByPartOfName(String query) {
-        log.info("Search giftCertificates by part of name with query = " + query);
-        List<Certificate> sortedList = new ArrayList<>();
-        if (!query.isEmpty()) {
-            List<Certificate> listOfAll =
-                    read();
-            for (String substring : query.split(" ")) {
-                sortedList.addAll(listOfAll.stream()
-                        .filter((giftCertificate ->
-                                giftCertificate.getName().toLowerCase().contains(substring.toLowerCase())))
-                        .collect(Collectors.toList()));
-            }
-        }
-        return sortedList;
-    }
-
-    List<Certificate> searchByPartOfDescription(String query) {
-        log.info("Search giftCertificates by part of description with query = " + query);
-        List<Certificate> sortedList = new ArrayList<>();
-        if (!query.isEmpty()) {
-            List<Certificate> listOfAll =
-                    read();
-            for (String substring : query.split(" ")) {
-                sortedList.addAll(listOfAll.stream()
-                        .filter((giftCertificate ->
-                                giftCertificate.getDescription().toLowerCase().contains(substring.toLowerCase())))
-                        .collect(Collectors.toList()));
-            }
-        }
-        return sortedList;
+        Map<String, Integer> indexes = paginate(read().size(), size, page);
+        return certificateDaoI.filterAndSort(name, description,
+                sortField, sortOrder, tagName, indexes.get("offset"), indexes.get("limit"));
     }
 }

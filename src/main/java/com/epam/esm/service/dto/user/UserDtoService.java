@@ -48,11 +48,6 @@ public class UserDtoService implements UserDtoServiceI {
     }
 
     @Override
-    public UserDto bestUser() {
-        return userDtoMapper.userToUserDto(service.bestUser());
-    }
-
-    @Override
     public List<UserDto> findPaginated(int page, int size) {
         return userListToUserDtoList(service.findPaginated(size, page));
     }
