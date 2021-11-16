@@ -2,8 +2,8 @@ package com.epam.esm.service.dto.certificate;
 
 import com.epam.esm.mapper.certificate.CertificateDtoMapper;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
-import com.epam.esm.model.Certificate;
 import com.epam.esm.model.dto.CertificateDto;
+import com.epam.esm.model.entity.Certificate;
 import com.epam.esm.service.entity.certificate.CertificateService;
 import com.epam.esm.service.entity.certificate.CertificateServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,17 +52,19 @@ public class CertificateDtoService implements CertificateDtoServiceI {
         service.patch(id, mapper.certificateDtoToCertificate(patchedCertificate));
     }
 
-    @Override
-    public List<CertificateDto> getByTagOrQueryAndSort(String name,
-                                                       String description,
-                                                       String sortField, String sortOrder, String tagName) {
-        return certificateListToCertificateDtoList(service.getCertificatesByCriteria(name, description
-                , sortField, sortOrder, tagName));
-    }
-
     private List<CertificateDto> certificateListToCertificateDtoList(List<Certificate> certificateList) {
         return certificateList.stream()
                 .map((certificate -> mapper.certificateToCertificateDto(certificate)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CertificateDto> findPaginated(String name, String description,
+                                              String sortField, String sortOrder,
+                                              String tagName, int page, int size) {
+        List<Certificate> certificates = service.findPaginated(name,
+                description, sortField, sortOrder, tagName, page, size);
+
+        return certificateListToCertificateDtoList(certificates);
     }
 }

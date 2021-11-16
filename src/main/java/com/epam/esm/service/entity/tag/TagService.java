@@ -1,57 +1,83 @@
 package com.epam.esm.service.entity.tag;
 
-import com.epam.esm.dao.tag.TagDao;
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
-import com.epam.esm.model.Tag;
+import com.epam.esm.dao.tag.TagDaoI;
+import com.epam.esm.dao.tag.impl.TagDao;
+import com.epam.esm.exceptions.TagNotFoundException;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.service.entity.PaginationCalcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Optional;
 
 @Service
-public class TagService implements TagServiceI {
-    private TagDao tagDao;
+public class TagService implements TagServiceI, PaginationCalcService {
+    private TagDaoI tagDaoI;
 
     @Autowired
-    public TagService(TagDaoImplementation tagDao) {
-        this.tagDao = tagDao;
+    public TagService(
+            TagDao tagDaoI) {
+        this.tagDaoI = tagDaoI;
     }
 
-    @Override
+
+    @Transactional
     public Tag create(Tag tag) {
-        tagDao.update(tag.getName());
-        return tagDao.read(tag.getName());
+        try {
+            return read(tag.getName());
+        } catch (TagNotFoundException e) {
+            tagDaoI.create(tag);
+            return read(tag.getName());
+        }
     }
 
-    @Override
+    @Transactional
     public void delete(Tag tag) {
-        tagDao.delete(tag.getId());
+        tagDaoI.delete(tag);
     }
 
-    @Override
     public List<Tag> read() {
-        return tagDao.read();
+        return tagDaoI.read();
     }
 
     @Override
+    public List<Tag> findPaginated(int size, int page) {
+        Map<String, Integer> indexes = paginate(read().size(), size, page);
+        return tagDaoI.read(indexes.get("offset"), indexes.get("limit"));
+    }
+
     public Tag read(String name) {
         if (name != null) {
-            return tagDao.read(name);
+            Optional<Tag> tag = (tagDaoI.findTagByName(name));
+            if (!tag.isPresent()) {
+                throw new TagNotFoundException("Tag wasn't" +
+                        " found. name =" + name);
+            } else {
+                return tag.get();
+            }
         } else {
             throw new InvalidParameterException("name is null");
         }
     }
 
-    @Override
     public Tag read(long id) {
-        if (id > 0) {
-            return tagDao.read(id);
+        Optional<Tag> tag = tagDaoI.read(id);
+        if (!tag.isPresent()) {
+            throw new TagNotFoundException("Tag wasn't" +
+                    " found. id =" + id);
         } else {
-            throw new InvalidParameterException("invalid id. id = " + id);
+            return tag.get();
         }
     }
 
-
+    @Override
+    public Tag getTagsOfUserWithHighestPriceOfOrders() {
+        String mostUsedTagOfTopUser =
+                tagDaoI.findMostUsedTagOfTopUser();
+        return read(mostUsedTagOfTopUser);
+    }
 }

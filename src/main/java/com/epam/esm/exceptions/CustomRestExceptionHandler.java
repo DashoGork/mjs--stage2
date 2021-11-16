@@ -13,41 +13,29 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.validation.ConstraintViolationException;
 
 import static com.epam.esm.enums.ErrorCode.ARGUMENT_NOT_VALID;
 
 @ControllerAdvice
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
-//    @Override
-//    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-//        ex.printStackTrace();
-//        ex.getMessage();
-//
-//        return super.handleExceptionInternal(ex, body, headers, status, request);
-//    }
-
-
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ApiError errorDetails = new ApiError(
-                ex.getLocalizedMessage(), ARGUMENT_NOT_VALID.getErrorCode());
-        return handleExceptionInternal(ex, errorDetails, headers, HttpStatus.BAD_REQUEST, request);
+                ex.getCause().getLocalizedMessage(), ARGUMENT_NOT_VALID.getErrorCode());
+        ResponseEntity<Object> entity =
+                new ResponseEntity<Object>(errorDetails, status);
+        return entity;
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<String> errorList = ex
-                .getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(fieldError -> fieldError.getDefaultMessage())
-                .collect(Collectors.toList());
         ApiError errorDetails = new ApiError(
-                errorList.toString(), ARGUMENT_NOT_VALID.getErrorCode());
-        return handleExceptionInternal(ex, errorDetails, headers, HttpStatus.BAD_REQUEST, request);
+                ex.getMessage(), ARGUMENT_NOT_VALID.getErrorCode());
+        ResponseEntity<Object> entity =
+                new ResponseEntity<Object>(errorDetails, status);
+        return entity;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -55,6 +43,12 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiError springHandleIllegalArgumentException(IllegalArgumentException exception) {
         return new ApiError(exception.getMessage(), ErrorCode.TAG_NOT_FOUND.getErrorCode());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+        return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ParameterValidationException.class)
@@ -76,6 +70,14 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiError springHandleCertificateNotFound(GiftCertificateNotFoundException exception) {
         return new ApiError(exception.getMessage(), ErrorCode.CERTIFICATE_NOT_FOUND.getErrorCode());
+    }
+
+    @ExceptionHandler(BaseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ApiError springHandleBaseNotFound(GiftCertificateNotFoundException exception) {
+        return new ApiError(exception.getMessage(),
+                ErrorCode.BASE_NOT_FOUND.getErrorCode());
     }
 
 }

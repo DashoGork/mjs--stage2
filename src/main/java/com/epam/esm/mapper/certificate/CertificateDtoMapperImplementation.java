@@ -1,28 +1,31 @@
 package com.epam.esm.mapper.certificate;
 
-import com.epam.esm.model.Certificate;
-import com.epam.esm.model.Tag;
 import com.epam.esm.model.dto.CertificateDto;
 import com.epam.esm.model.dto.TagDto;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class CertificateDtoMapperImplementation implements CertificateDtoMapper {
+
     @Override
     public Certificate certificateDtoToCertificate(CertificateDto certificateDto) {
         if (certificateDto == null) {
             return null;
         }
         Certificate certificate = new Certificate();
+        certificate.setId(certificateDto.getId());
         certificate.setName(certificateDto.getName());
         certificate.setDescription(certificateDto.getDescription());
         certificate.setPrice(certificateDto.getPrice());
         certificate.setDuration(certificateDto.getDuration());
-        certificate.setTags(tagDtoListToTagList(certificateDto.getTags()));
-        certificate.setId(certificateDto.getId());
+        certificate.setCreateDate(certificateDto.getCreateDate());
+        certificate.setLastUpdateDate(certificateDto.getLastUpdateDate());
+        certificate.setTags(tagDtoSetToTagSet(certificateDto.getTags()));
         return certificate;
     }
 
@@ -32,12 +35,14 @@ public class CertificateDtoMapperImplementation implements CertificateDtoMapper 
             return null;
         }
         CertificateDto certificateDto = new CertificateDto();
-        certificateDto.setName(certificate.getName());
+        certificateDto.setId(certificate.getId());
         certificateDto.setDescription(certificate.getDescription());
+        certificateDto.setName(certificate.getName());
         certificateDto.setPrice(certificate.getPrice());
         certificateDto.setDuration(certificate.getDuration());
-        certificateDto.setTags(tagListToTagDtoList(certificate.getTags()));
-        certificateDto.setId(certificate.getId());
+        certificateDto.setCreateDate(certificate.getCreateDate());
+        certificateDto.setLastUpdateDate(certificate.getLastUpdateDate());
+        certificateDto.setTags(tagSetToTagDtoSet(certificate.getTags()));
         return certificateDto;
     }
 
@@ -46,20 +51,20 @@ public class CertificateDtoMapperImplementation implements CertificateDtoMapper 
             return null;
         }
         Tag tag = new Tag();
-        tag.setName(tagDto.getName());
         tag.setId(tagDto.getId());
+        tag.setName(tagDto.getName());
         return tag;
     }
 
-    protected List<Tag> tagDtoListToTagList(List<TagDto> list) {
-        if (list == null) {
+    protected Set<Tag> tagDtoSetToTagSet(Set<TagDto> set) {
+        if (set == null) {
             return null;
         }
-        List<Tag> list1 = new ArrayList<Tag>(list.size());
-        for (TagDto tagDto : list) {
-            list1.add(tagDtoToTag(tagDto));
+        Set<Tag> set1 = new HashSet<Tag>(Math.max((int) (set.size() / .75f) + 1, 16));
+        for (TagDto tagDto : set) {
+            set1.add(tagDtoToTag(tagDto));
         }
-        return list1;
+        return set1;
     }
 
     protected TagDto tagToTagDto(Tag tag) {
@@ -67,19 +72,19 @@ public class CertificateDtoMapperImplementation implements CertificateDtoMapper 
             return null;
         }
         TagDto tagDto = new TagDto();
-        tagDto.setName(tag.getName());
         tagDto.setId(tag.getId());
+        tagDto.setName(tag.getName());
         return tagDto;
     }
 
-    protected List<TagDto> tagListToTagDtoList(List<Tag> list) {
-        if (list == null) {
+    protected Set<TagDto> tagSetToTagDtoSet(Set<Tag> set) {
+        if (set == null) {
             return null;
         }
-        List<TagDto> list1 = new ArrayList<TagDto>(list.size());
-        for (Tag tag : list) {
-            list1.add(tagToTagDto(tag));
+        Set<TagDto> set1 = new HashSet<TagDto>(Math.max((int) (set.size() / .75f) + 1, 16));
+        for (Tag tag : set) {
+            set1.add(tagToTagDto(tag));
         }
-        return list1;
+        return set1;
     }
 }

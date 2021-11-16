@@ -1,7 +1,7 @@
 package com.epam.esm.mapper.certificate;
 
-import com.epam.esm.model.Certificate;
 import com.epam.esm.model.dto.CertificateDto;
+import com.epam.esm.model.entity.Certificate;
 import org.mapstruct.Mapper;
 
 @Mapper

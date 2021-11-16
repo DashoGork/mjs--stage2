@@ -1,8 +1,8 @@
 package com.epam.esm.service.dto.tag;
 
 import com.epam.esm.mapper.tag.TagDtoMapper;
-import com.epam.esm.model.Tag;
 import com.epam.esm.model.dto.TagDto;
+import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.entity.tag.TagService;
 import com.epam.esm.service.entity.tag.TagServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +47,16 @@ public class TagDtoService implements TagDtoServiceI {
     @Override
     public TagDto read(String name) {
         return mapper.tagToTagDto(tagService.read(name));
+    }
+
+    @Override
+    public List<TagDto> findPaginated(int page, int size) {
+        return tagListToTagDtoList(tagService.findPaginated(size, page));
+    }
+
+    @Override
+    public TagDto getTagsOfUserWithHighestPriceOfOrders() {
+        return mapper.tagToTagDto(tagService.getTagsOfUserWithHighestPriceOfOrders());
     }
 
     private List<TagDto> tagListToTagDtoList(List<Tag> tagList) {

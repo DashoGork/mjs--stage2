@@ -1,45 +1,49 @@
 package com.epam.esm.service.entity.certificate;
 
-import com.epam.esm.dao.giftCertificate.impl.GiftCertificateDaoImplementation;
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
-import com.epam.esm.dao.tagGiftCertificate.impl.TagCertificateDaoImplementation;
+import com.epam.esm.dao.giftCertificate.impl.CertificateDao;
+import com.epam.esm.dao.tag.impl.TagDao;
 import com.epam.esm.exceptions.GiftCertificateNotFoundException;
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
-import com.epam.esm.model.Certificate;
-import com.epam.esm.model.Tag;
+import com.epam.esm.mapper.certificate.CertificatePatchedMapperImpl;
+import com.epam.esm.model.entity.Certificate;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.service.entity.tag.TagService;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateServiceTest {
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
-    private GiftCertificateDaoImplementation certificateDao;
+    private TagDao tagDao;
     @Mock
-    private TagDaoImplementation tagDao;
+    private CertificateDao certificateDao;
     @Mock
-    private TagCertificateDaoImplementation tagCertificateDao;
-
-
+    private TagService tagService;
+    @Mock
+    private CertificatePatchedMapperImpl patchedMapper;
     private CertificateService service;
     private Tag tag;
     private Certificate certificate;
     private List<Certificate> expectedList;
     private CertificateDtoMapperImplementation mapper;
+    private Certificate secondCertificate;
 
     @Before
     public void setUp() throws Exception {
-        service = new CertificateService(certificateDao, tagDao,
-                tagCertificateDao);
+        service = new CertificateService(tagDao, tagService,
+                patchedMapper, certificateDao);
         tag = new Tag();
         tag.setName("name");
         tag.setId(1);
@@ -52,29 +56,31 @@ public class CertificateServiceTest {
         certificate.setLastUpdateDate(new Date());
         expectedList = new ArrayList<>();
         expectedList.add(certificate);
+        secondCertificate = new Certificate();
+        secondCertificate.setName("name2");
+        secondCertificate.setDescription("desc");
+        secondCertificate.setDuration(2);
+        secondCertificate.setPrice(9);
+        secondCertificate.setCreateDate(new Date());
+        secondCertificate.setLastUpdateDate(new Date());
+
     }
+
 
     @Test
     public void createAlreadyExisting() {
-        doNothing().when(tagDao).create(tag);
-        doNothing().when(certificateDao).create(certificate);
-        when(certificateDao.read(anyString())).thenReturn(certificate);
-        certificate.setTags(new ArrayList<>());
-        doNothing().when(tagCertificateDao).add(tag, certificate);
+        when(certificateDao.findCertificateByName("name")).thenReturn(Optional.of(certificate));
         Certificate actualCertificate = service.create((certificate));
         assertTrue(actualCertificate.equals(certificate));
     }
 
     @Test
     public void create() {
-        doNothing().when(tagDao).create(tag);
+        when(certificateDao.findCertificateByName("name")).thenReturn(Optional.of(certificate));
+        when(tagService.create(tag)).thenReturn(tag);
         doNothing().when(certificateDao).create(certificate);
-        when(certificateDao.read("name")).thenThrow(new GiftCertificateNotFoundException("not found"));
-        certificate.setTags(new ArrayList<>());
-        doNothing().when(tagCertificateDao).add(tag, certificate);
-        when(certificateDao.read((Date) any())).thenReturn(certificate);
-        service.create((certificate));
-        verify(certificateDao).create(certificate);
+        Certificate actualCertificate = service.create((certificate));
+        assertTrue(actualCertificate.equals(certificate));
     }
 
     @Test
@@ -87,75 +93,59 @@ public class CertificateServiceTest {
     }
 
     @Test
+    public void readByNotExistingName() {
+        when(certificateDao.findCertificateByName("")).thenReturn(Optional.ofNullable(null));
+        expectedException.expect(GiftCertificateNotFoundException.class);
+        Certificate c = service.read("");
+    }
+
+    @Test
     public void testRead() {
-        when(certificateDao.read(0)).thenReturn(certificate);
-        Certificate actualCertificate = service.read(0);
+        Optional<Certificate> expected = Optional.ofNullable(certificate);
+        when(certificateDao.read(1l)).thenReturn(expected);
+        Certificate actualCertificate = service.read(1);
         assertTrue(actualCertificate.getDescription().equals(certificate.getDescription()));
         assertTrue(actualCertificate.getName().equals(certificate.getName()));
     }
 
     @Test
-    public void delete() {
-        doNothing().when(certificateDao).delete(certificate.getId());
-        doNothing().when(tagCertificateDao).deleteCertificate(certificate.getId());
-        service.delete((certificate));
-        verify(certificateDao).delete(certificate.getId());
+    public void testReadNotExisting() {
+        Optional<Certificate> expected = Optional.ofNullable(null);
+        when(certificateDao.read(1l)).thenReturn(expected);
+        expectedException.expect(GiftCertificateNotFoundException.class);
+        service.read(1);
     }
 
     @Test
-    public void getAllCertificatesByTag() {
-        List<Long> expectedListOfIds = new ArrayList<>();
-        expectedListOfIds.add(1l);
-        when(tagDao.read(tag.getName())).thenReturn(tag);
-        when(tagCertificateDao.readByTag(tag.getId())).thenReturn(expectedListOfIds);
-        when(certificateDao.read(1l)).thenReturn(certificate);
-        List<Certificate> actualList =
-                service.getAllCertificatesByTagName(tag.getName());
-        assertTrue(actualList.equals(expectedList));
+    public void delete() {
+        doNothing().when(certificateDao).delete(certificate);
+        service.delete((certificate));
+        verify(certificateDao).delete(certificate);
     }
 
     @Test
     public void patch() {
+        Optional<Certificate> expected = Optional.ofNullable(certificate);
         Certificate patchedCertificate = new Certificate();
+        List<Tag> tags = new ArrayList<>();
+        tags.add(tag);
+        Set<Tag> tagSet = new HashSet<>();
+        tagSet.add(tag);
+        patchedCertificate.setTags(tagSet);
         patchedCertificate.setPrice(300);
-        when(certificateDao.read(0)).thenReturn(certificate);
-        doNothing().when(certificateDao).patch(patchedCertificate,
-                certificate);
-        when(tagCertificateDao.readByCertificate(0)).thenReturn(new ArrayList<>());
-        service.patch(0, patchedCertificate);
-        verify(certificateDao).patch(patchedCertificate, certificate);
+        when(certificateDao.read(1l)).thenReturn(expected);
+        when(tagService.create(tag)).thenReturn(tag);
+        doNothing().when(certificateDao).create(certificate);
+        when(tagDao.findTagsByCertificates(certificate)).thenReturn(tags);
+        service.patch(1, patchedCertificate);
+        verify(certificateDao).patch(any());
     }
 
     @Test
-    public void getCertificatesByCriteriaWithoutSortOptionAndQuery() {
+    public void findPaginated() {
         when(certificateDao.read()).thenReturn(expectedList);
-        assertTrue(service.getCertificatesByCriteria("", "", "", "", "").equals(expectedList));
+        when(certificateDao.filterAndSort("", "", "", "", "", 0, 1)).thenReturn(expectedList);
+        assertTrue(service.findPaginated("", "", "", "", "", 1, 2).size() == 1);
     }
 
-    @Test
-    public void getCertificatesByCriteria() {
-
-    }
-
-    @Test
-    public void searchByPartOfName() {
-        Certificate certificate = new Certificate();
-        certificate.setName("11111");
-        expectedList.add(certificate);
-        when(certificateDao.read()).thenReturn(expectedList);
-        assertTrue(service.searchByPartOfName("1").size() == 1);
-        assertTrue(service.searchByPartOfName("1").get(0).equals(certificate));
-    }
-
-    @Test
-    public void searchByPartOfDescription() {
-        Certificate additionalCertificate = new Certificate();
-        additionalCertificate.setDescription("11111");
-        expectedList.add(additionalCertificate);
-        when(certificateDao.read()).thenReturn(expectedList);
-        assertTrue(service.searchByPartOfDescription("desc").size() == 1);
-        assertTrue(service.searchByPartOfDescription("desc").get(0).equals(certificate));
-        assertTrue(service.searchByPartOfDescription("1").size() == 1);
-        assertTrue(service.searchByPartOfDescription("1").get(0).equals(additionalCertificate));
-    }
 }

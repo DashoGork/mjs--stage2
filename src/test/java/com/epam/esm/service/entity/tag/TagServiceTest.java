@@ -1,9 +1,8 @@
-
 package com.epam.esm.service.entity.tag;
 
-import com.epam.esm.dao.tag.impl.TagDaoImplementation;
+import com.epam.esm.dao.tag.impl.TagDao;
 import com.epam.esm.exceptions.TagNotFoundException;
-import com.epam.esm.model.Tag;
+import com.epam.esm.model.entity.Tag;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,82 +14,121 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TagServiceTest {
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
-    private TagDaoImplementation dao;
+    private TagDao tagDao;
+
 
     private TagService service;
     private Tag tag;
-
+    private Tag secondTag;
+    private Optional<Tag> optionalTag;
+    private List<Tag> listOfAll;
 
     @Before
-    public void setUp() {
-        service = new TagService(dao);
+    public void setUp() throws Exception {
+        service = new TagService(tagDao);
         tag = new Tag();
-        tag.setName("name");
-        tag.setId(1);
+        tag.setName("tag");
+        tag.setId(1l);
+        secondTag = new Tag();
+        secondTag.setId(2l);
+        secondTag.setName("23");
+        listOfAll = new ArrayList<>();
+        listOfAll.add(tag);
     }
 
     @Test
     public void create() {
-        doNothing().when(dao).create(tag);
-        service.create(tag);
+        optionalTag = Optional.of(tag);
+        doNothing().when(tagDao).create(tag);
+        when(tagDao.findTagByName(tag.getName())).thenReturn(optionalTag);
+        Tag actualTag = service.create((tag));
+        assertTrue(actualTag.equals(tag));
     }
+
+//    @Test
+//    public void createAlreadyExisting() {
+//        when(tagDao.findTagByName(tag.getName())).thenReturn(null);
+//        Tag actualTag = service.create((tag));
+//        assertTrue(actualTag.equals(tag));
+//    }
 
     @Test
     public void delete() {
-        doNothing().when(dao).delete(tag.getId());
-        service.delete(tag);
+        doNothing().when(tagDao).delete(tag);
+        service.delete((tag));
+        verify(tagDao).delete(tag);
     }
 
     @Test
     public void read() {
-        List<Tag> expectedList = new ArrayList<>();
-        expectedList.add(tag);
-        when(dao.read()).thenReturn(expectedList);
-        List<Tag> actualList = service.read();
-        assertTrue(actualList.equals(expectedList));
+        listOfAll.add(secondTag);
+        when(tagDao.read()).thenReturn(listOfAll);
+        assertTrue(service.read().equals(listOfAll));
     }
 
     @Test
-    public void testReadByName() {
-        when(dao.read("name")).thenReturn(tag);
-        Tag actualTag = service.read("name");
-        assertTrue(actualTag.equals(tag));
-    }
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Test
-    public void testReadByNameWithNullName() {
-        expectedException.expect(InvalidParameterException.class);
-        Tag actualTag = service.read(null);
+    public void findPaginated() {
+        when(tagDao.read()).thenReturn(listOfAll);
+        when(tagDao.read(0, 1)).thenReturn(listOfAll);
+        List<Tag> j = service.findPaginated(1, 1);
+        assertTrue(service.findPaginated(1, 1).size() == 1);
+        listOfAll.add(secondTag);
+        when(tagDao.read(0, 2)).thenReturn(listOfAll);
+        assertTrue(service.findPaginated(2, 1).size() == 2);
     }
 
     @Test
-    public void testReadByNameWithNotFoundException() {
-        when(dao.read("name")).thenThrow(new TagNotFoundException("message"));
+    public void readByName() {
+        Optional<Tag> expected = Optional.ofNullable(tag);
+        when(tagDao.findTagByName(tag.getName())).thenReturn(expected);
+        assertTrue(service.read(tag.getName()).equals(tag));
+    }
+
+    @Test
+    public void readByNotExistingName() {
+        Optional<Tag> expected = Optional.ofNullable(null);
+        when(tagDao.findTagByName("")).thenReturn(expected);
         expectedException.expect(TagNotFoundException.class);
-        Tag actualTag = service.read("name");
+        service.read("");
+    }
+
+    @Test
+    public void readByInvalidName() {
+        expectedException.expect(InvalidParameterException.class);
+        service.read(null);
+    }
+
+    @Test
+    public void testReadNotExisting() {
+        Optional<Tag> expected = Optional.ofNullable(null);
+        when(tagDao.read(1l)).thenReturn(expected);
+        expectedException.expect(TagNotFoundException.class);
+        service.read(1l);
     }
 
     @Test
     public void testReadById() {
-        when(dao.read(1)).thenReturn(tag);
-        Tag actualTag = service.read(1);
-        assertTrue(actualTag.equals(tag));
+        Optional<Tag> expected = Optional.of(tag);
+        when(tagDao.read(1l)).thenReturn(expected);
+        Tag actual = service.read(1);
+        assertTrue(actual.equals(expected.get()));
     }
 
     @Test
-    public void testReadByIdWithNotFoundException() {
-        when(dao.read(22)).thenThrow(new TagNotFoundException("message"));
-        expectedException.expect(TagNotFoundException.class);
-        Tag actualTag = service.read(22);
+    public void getTagsOfUserWithHighestPriceOfOrders() {
+        Optional<Tag> expected = Optional.of(tag);
+        when(tagDao.findMostUsedTagOfTopUser()).thenReturn(tag.getName());
+        when(tagDao.findTagByName(tag.getName())).thenReturn(expected);
+        assertTrue(service.getTagsOfUserWithHighestPriceOfOrders().equals(tag));
     }
 }
