@@ -1,4 +1,3 @@
-/*
 package com.epam.esm.service.dto.certificate;
 
 import com.epam.esm.mapper.certificate.CertificateDtoMapperImplementation;
@@ -83,15 +82,6 @@ public class CertificateDtoServiceTest {
     }
 
     @Test
-    public void getByTagOrQueryAndSort() {
-        List<Certificate> certificateList = new ArrayList<>();
-        certificateList.add(certificate);
-        when(service.getCertificatesByCriteria("", "", "", "", ""))
-                .thenReturn(certificateList);
-        assertTrue(certificateDtoService.getByTagOrQueryAndSort("", "", "", "", "").size() == 1);
-    }
-
-    @Test
     public void findPaginated() {
         List<Certificate> certificateList = new ArrayList<>();
         certificateList.add(certificate);
@@ -99,4 +89,4 @@ public class CertificateDtoServiceTest {
                 .thenReturn(certificateList);
         assertTrue(certificateDtoService.findPaginated("", "", "", "", "", 1, 1).size() == 1);
     }
-}*/
+}

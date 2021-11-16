@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,7 +28,7 @@ public class AuditObjectServiceTest {
 
     @Test
     public void add() {
-//        when(dao.create(auditObject);).thenReturn(auditObject);
+        doNothing().when(dao).create(auditObject);
         service.add(auditObject);
         verify(dao).create(auditObject);
     }

@@ -42,7 +42,9 @@ public class OrderService implements OrderServiceI {
             order.setTimeOfPurchase();
 
             User user = userService.read(order.getUserId());
-            order.setCertificates(order.getCertificates().stream().map(certificate -> certificateDao.read(certificate.getId()).get()).collect(Collectors.toSet()));
+            order.setCertificates(order.getCertificates().stream()
+                    .map(certificate -> certificateDao.read(certificate.getId()).get())
+                    .collect(Collectors.toSet()));
             if (user.getPurse() >= order.getPrice()) {
                 user.setPurse(user.getPurse() - order.getPrice());
                 userDao.create(user);

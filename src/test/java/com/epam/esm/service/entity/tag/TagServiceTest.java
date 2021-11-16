@@ -1,6 +1,5 @@
 package com.epam.esm.service.entity.tag;
 
-import com.epam.esm.dao.order.impl.OrderDao;
 import com.epam.esm.dao.tag.impl.TagDao;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.model.entity.Tag;
@@ -26,19 +25,17 @@ public class TagServiceTest {
     public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private TagDao tagDao;
-    @Mock
-    private TagDao tagDaoI;
-    @Mock
-    private OrderDao orderDao;
+
 
     private TagService service;
     private Tag tag;
     private Tag secondTag;
+    private Optional<Tag> optionalTag;
     private List<Tag> listOfAll;
 
     @Before
     public void setUp() throws Exception {
-        service = new TagService(tagDaoI);
+        service = new TagService(tagDao);
         tag = new Tag();
         tag.setName("tag");
         tag.setId(1l);
@@ -49,20 +46,21 @@ public class TagServiceTest {
         listOfAll.add(tag);
     }
 
-//    @Test
-//    public void create() {
-//        when(tagDao.findTagByName(tag.getName())).thenReturn(null);
-//        when(tagDao.create(tag);).thenReturn(tag);
-//        Tag actualTag = service.create((tag));
-//        assertTrue(actualTag.equals(tag));
-//    }
-
     @Test
-    public void createAlreadyExisting() {
-        when(tagDao.findTagByName(tag.getName())).thenReturn(null);
+    public void create() {
+        optionalTag = Optional.of(tag);
+        doNothing().when(tagDao).create(tag);
+        when(tagDao.findTagByName(tag.getName())).thenReturn(optionalTag);
         Tag actualTag = service.create((tag));
         assertTrue(actualTag.equals(tag));
     }
+
+//    @Test
+//    public void createAlreadyExisting() {
+//        when(tagDao.findTagByName(tag.getName())).thenReturn(null);
+//        Tag actualTag = service.create((tag));
+//        assertTrue(actualTag.equals(tag));
+//    }
 
     @Test
     public void delete() {
@@ -80,21 +78,26 @@ public class TagServiceTest {
 
     @Test
     public void findPaginated() {
-        listOfAll.add(secondTag);
         when(tagDao.read()).thenReturn(listOfAll);
+        when(tagDao.read(0, 1)).thenReturn(listOfAll);
+        List<Tag> j = service.findPaginated(1, 1);
         assertTrue(service.findPaginated(1, 1).size() == 1);
+        listOfAll.add(secondTag);
+        when(tagDao.read(0, 2)).thenReturn(listOfAll);
         assertTrue(service.findPaginated(2, 1).size() == 2);
     }
 
     @Test
     public void readByName() {
-        when(tagDao.findTagByName(tag.getName())).thenReturn(null);
+        Optional<Tag> expected = Optional.ofNullable(tag);
+        when(tagDao.findTagByName(tag.getName())).thenReturn(expected);
         assertTrue(service.read(tag.getName()).equals(tag));
     }
 
     @Test
     public void readByNotExistingName() {
-        when(tagDao.findTagByName("")).thenReturn(null);
+        Optional<Tag> expected = Optional.ofNullable(null);
+        when(tagDao.findTagByName("")).thenReturn(expected);
         expectedException.expect(TagNotFoundException.class);
         service.read("");
     }
@@ -106,22 +109,16 @@ public class TagServiceTest {
     }
 
     @Test
-    public void testReadNotValid() {
-        expectedException.expect(InvalidParameterException.class);
-        service.read(0);
-    }
-
-    @Test
     public void testReadNotExisting() {
         Optional<Tag> expected = Optional.ofNullable(null);
         when(tagDao.read(1l)).thenReturn(expected);
         expectedException.expect(TagNotFoundException.class);
-        service.read(1);
+        service.read(1l);
     }
 
     @Test
     public void testReadById() {
-        Optional<Tag> expected = Optional.ofNullable(tag);
+        Optional<Tag> expected = Optional.of(tag);
         when(tagDao.read(1l)).thenReturn(expected);
         Tag actual = service.read(1);
         assertTrue(actual.equals(expected.get()));
@@ -129,11 +126,9 @@ public class TagServiceTest {
 
     @Test
     public void getTagsOfUserWithHighestPriceOfOrders() {
-        List<Long> userIds = new ArrayList<>();
-        List<Tag> tags = new ArrayList<>();
-        tags.add(tag);
-        userIds.add(1l);
-        when(tagDao.findMostUsedTagOfTopUser()).thenReturn(null);
+        Optional<Tag> expected = Optional.of(tag);
+        when(tagDao.findMostUsedTagOfTopUser()).thenReturn(tag.getName());
+        when(tagDao.findTagByName(tag.getName())).thenReturn(expected);
         assertTrue(service.getTagsOfUserWithHighestPriceOfOrders().equals(tag));
     }
 }

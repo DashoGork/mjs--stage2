@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,14 +64,8 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testReadNotValid() {
-        expectedException.expect(InvalidParameterException.class);
-        service.read(0);
-    }
-
-    @Test
     public void testReadById() {
-        Optional<User> expected = Optional.ofNullable(secondUser);
+        Optional<User> expected = Optional.of(secondUser);
         when(userDao.read(1l)).thenReturn(expected);
         User actual = service.read(1);
         assertTrue(actual.equals(expected.get()));
@@ -89,7 +82,7 @@ public class UserServiceTest {
     @Test
     public void findPaginated() {
         when(userDao.read()).thenReturn(listOfAll);
-        assertTrue(service.findPaginated(1, 1).size() == 1);
-        assertTrue(service.findPaginated(2, 1).size() == 2);
+        when(userDao.read(0, 1)).thenReturn(listOfAll);
+        assertTrue(service.findPaginated(1, 1).size() == 2);
     }
 }
