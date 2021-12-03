@@ -8,6 +8,12 @@ import java.util.List;
 public interface UserServiceI {
     User read(long id);
     List<User> read();
+
+    User read(String name);
+
     List<Order> readOrdersByIdUser(long id);
+
     List<User> findPaginated(int size, int page);
+
+    User create(User user);
 }

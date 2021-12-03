@@ -11,6 +11,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,8 @@ public class UserServiceTest {
     public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private UserDao userDao;
+    @Mock
+    BCryptPasswordEncoder passwordEncoder;
 
 
     private UserService service;
@@ -34,7 +37,7 @@ public class UserServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new UserService(userDao);
+        service = new UserService(userDao, passwordEncoder);
         firstUser = new User();
         firstUser.setPurse(12);
         firstUser.setId(12);

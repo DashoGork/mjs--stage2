@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,6 @@ import java.util.Set;
 @Component
 public class OrderDto extends BaseEntityDto {
     private long price;
-    @NotNull
     private long userId;
     private Date timeOfPurchase;
     @NotEmpty

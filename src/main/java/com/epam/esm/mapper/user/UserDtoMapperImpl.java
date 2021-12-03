@@ -28,6 +28,8 @@ public class UserDtoMapperImpl implements UserDtoMapper {
         user.setName(userDto.getName());
         user.setPurse(userDto.getPurse());
         user.setOrders(orderDtoListToOrderList(userDto.getOrders()));
+        user.setPassword(userDto.getPassword());
+        user.setRole(userDto.getRole());
         return user;
     }
 
@@ -41,6 +43,8 @@ public class UserDtoMapperImpl implements UserDtoMapper {
         userDto.setName(user.getName());
         userDto.setPurse(user.getPurse());
         userDto.setOrders(orderListToOrderDtoList(user.getOrders()));
+        userDto.setPassword(user.getPassword());
+        userDto.setRole(user.getRole());
         return userDto;
     }
 

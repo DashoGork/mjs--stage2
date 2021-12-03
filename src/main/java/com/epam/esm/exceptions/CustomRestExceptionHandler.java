@@ -1,10 +1,12 @@
 package com.epam.esm.exceptions;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.epam.esm.enums.ErrorCode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +21,22 @@ import static com.epam.esm.enums.ErrorCode.ARGUMENT_NOT_VALID;
 
 @ControllerAdvice
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public static ApiError springAccessDeniedException(AccessDeniedException exception) {
+        return new ApiError("Accesses denied",
+                40004);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public static ApiError springTokenExpiredException(TokenExpiredException exception) {
+        return new ApiError("Token Expired",
+                40005);
+    }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -79,5 +97,4 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiError(exception.getMessage(),
                 ErrorCode.BASE_NOT_FOUND.getErrorCode());
     }
-
 }

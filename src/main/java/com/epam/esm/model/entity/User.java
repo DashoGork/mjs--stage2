@@ -21,6 +21,8 @@ import java.util.List;
 public class User extends BaseEntity implements Auditable {
     @NotEmpty
     private String name;
+    @NotEmpty
+    private String password;
     private long purse;
 
     @ManyToMany(cascade = {CascadeType.REMOVE})
@@ -33,6 +35,11 @@ public class User extends BaseEntity implements Auditable {
     private List<Order> orders;
     @Transient
     private AuditObject auditObject;
+
+    @ManyToOne
+    @JoinColumn(name = "role", nullable = false)
+    private Role role;
+
 
     @Override
     public AuditObject getAudit() {

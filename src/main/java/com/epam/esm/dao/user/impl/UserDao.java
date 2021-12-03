@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
@@ -42,5 +43,19 @@ public class UserDao implements UserDaoI {
     @Override
     public void create(User user) {
         entityManager.persist(user);
+    }
+
+    @Override
+    public Optional<User> read(String name) {
+        Optional<User> user;
+        try {
+            Query query =
+                    entityManager.createQuery(Queries.SELECT_USER_BY_NAME.getQuery());
+            query.setParameter(1, name);
+            user = Optional.ofNullable((User) query.getSingleResult());
+        } catch (NoResultException ex) {
+            user = Optional.empty();
+        }
+        return user;
     }
 }

@@ -52,6 +52,16 @@ public class UserDtoService implements UserDtoServiceI {
         return userListToUserDtoList(service.findPaginated(size, page));
     }
 
+    @Override
+    public UserDto create(UserDto userDto) {
+        return userDtoMapper.userToUserDto(service.create(userDtoMapper.userDtoToUser(userDto)));
+    }
+
+    @Override
+    public UserDto read(String name) {
+        return userDtoMapper.userToUserDto(service.read(name));
+    }
+
     private List<UserDto> userListToUserDtoList(List<User> userList) {
         return userList.stream()
                 .map((user -> userDtoMapper.userToUserDto(user)))

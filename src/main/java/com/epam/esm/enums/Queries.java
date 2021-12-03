@@ -21,6 +21,8 @@ public enum Queries {
     SELECT_CERTIFICATE_BY_NAME("from Certificate c where c.name=?1"),
     SELECT_ORDER_BY_USER_ID_AND_TIME_OFF_PURCHASE_AND_PRICE("from Order o " +
             "where o.userId=?1 and o.timeOfPurchase=?2 and o.price=?3"),
-    SELECT_ALL_USERS("from Users");
+    SELECT_ALL_USERS("from User"),
+    SELECT_USER_BY_NAME("from User u where u.name=?1"),
+    ;
     private String query;
 }
